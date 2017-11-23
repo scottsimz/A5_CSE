@@ -1,7 +1,7 @@
 # A5_CSE
 Traffic Simulation for assignment 5 of CSE 6010
 
-#Sections
+# Sections
 
 ## Environment Map
 The env_map file can build a grid using the following inputs:
