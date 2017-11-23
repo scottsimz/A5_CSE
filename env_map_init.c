@@ -2,9 +2,6 @@
 #include <stdlib.h>
 
 
-#define L 3
-#define n_hor 3
-#define n_vert 3
 #define EMPTY '0'
 #define SOUTH 'S'
 #define NORTH 'N'
@@ -19,17 +16,37 @@
 char **malloc_matrix(int n1, int n2);
 void free_matrix(int n1, int n2, char **a);
 void print_matrix(int n1, int n2, char **a);
-void fill_intersection(char** grid,int midRow,int midCol);
+char** initialize_grid(int L, int n_hor, int n_vert);
+void fill_intersection(char** grid,int L, int midRow,int midCol);
+
 
 int main(){
+
+	int L = 3; //length of road segment
+	int n_hor = 3; //number of horizontal blocks
+	int n_vert = 3; //number of vertical blocks
 
 	int gridHeight = n_vert * (2*L + 3);
 	int gridWidth = n_hor * (2*L + 3);
 
+	//Initialize the grid
+	char** grid = initialize_grid(L,gridHeight,gridWidth);
+
+	//display the grid
+	print_matrix(gridHeight,gridWidth,grid);
+
+	//free memory reserved for grid
+	//Need to adjust this. The grid will be used by other programs so shouldn't be freed here.
+	free_matrix(gridHeight,gridWidth,grid);
+
+}
+
+
+char** initialize_grid(int L, int gridHeight, int gridWidth){
 
 	printf("Grid Height = %d, Grid Width = %d\n",gridWidth,gridHeight);
 	
-	//Reserve space for full grid
+	// //Reserve space for full grid
 	char** grid = malloc_matrix(gridHeight,gridWidth);
 
 	if(grid == NULL){printf("Error mallocing grid!");exit(1);};
@@ -54,19 +71,15 @@ int main(){
 					int midRow = row_block + (L+1);
 					int midCol = col_block + (L+1);
 
-					fill_intersection(grid,midRow,midCol);
+					fill_intersection(grid,L,midRow,midCol);
 												
 				}
 			}			
 		}	
 	}	
 
-
-	//display the grid
-	print_matrix(gridHeight,gridWidth,grid);
-
-	//free memory reserved for grid
-	free_matrix(gridHeight,gridWidth,grid);
+	// //Return the grid matrix as output
+	return grid;
 
 }
 	
@@ -76,7 +89,7 @@ int main(){
 
 
 	//Fill up grid around an intersection
-	void fill_intersection(char** grid,int midRow,int midCol){
+	void fill_intersection(char** grid,int L, int midRow,int midCol){
 
 		//Create the North-South Lanes
 		for(int row = midRow - (L+1);row <= midRow + (L+1);row++){
