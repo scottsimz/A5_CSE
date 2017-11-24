@@ -12,8 +12,10 @@ The env_map file can build a grid using the following inputs:
 Currently, the map can only make n_hor x n_vert grids which are fully populated. This means that if we have set 3 horizontal intersection blocks and 2 vertical intersection block, we will get a total of 6 intersections.
 
 Work Remaining:
-1. Need to add right hand turn lanes
-2. If we want to handle odd number of intersections, I will need to make adjustments.
+1. Need to add “I” cells for the spawner. These are the cells where the spawner will add new cars.
+2. Add update_traffic_lights() function
+3. Add “R” cells for right-hand turn lanes.
+
 
 ### Extra Files
 #### References
