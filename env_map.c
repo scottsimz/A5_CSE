@@ -16,12 +16,12 @@
 //define a car struct
 	typedef struct car {
 		int id; //Car ID
-	    int x_old;  //position (on range of [0; L])
-	    int y_old;  //position (on range of [0; L])
-	    int v_old;  //current velocity
-	    int x_new;  //position (on range of [0; L])
-	    int y_new;  //position (on range of [0; L])
-	    int v_new;  //current velocity
+	    int x_old;  //old x position
+	    int y_old;  //old y position
+	    int v_old;  //old velocity
+	    int x_new;  //new x position
+	    int y_new;  //new y position
+	    int v_new;  //new velocity
 	} car;
 
 
@@ -46,7 +46,7 @@
 	void fill_intersection(cell** grid,int L, int midRow,int midCol);
 	void random_fill(cell** grid,int gridHeight,int gridWidth,double p);
 
-//Grid Update/Results Functions
+//Active Car List/Results Functions
 	car* grid_snapshot(cell** grid,int gridHeight,int gridWidth,double timeStamp,FILE *file);
 	void save_results(FILE* f, cell** grid, int gridHeight, int gridWidth, double timeStamp);
 	//fprint functions print to file
@@ -96,6 +96,9 @@ int main(){
 
 	//Get active_car_list and also save car pos and velocities to file
 	car* active_car_list = grid_snapshot(grid,gridHeight,gridWidth,1,resultsFile); //The 2nd to last parameter is timestamp
+
+	active_car_list = grid_snapshot(grid,gridHeight,gridWidth,2,resultsFile); //Example of the function being called again at timestep=2
+	active_car_list = grid_snapshot(grid,gridHeight,gridWidth,3,resultsFile); //Example of the function being called again at timestep=3
 
 	fclose(resultsFile);
 
@@ -284,9 +287,6 @@ int main(){
 
 	// //Fill up grid around an intersection
 	void fill_intersection(cell** grid,int L, int midRow,int midCol){
-	
-		// char test = grid[1][2].map_elem;
-		// printf("%c",test);
 
 		//Create the North-South Lanes
 		for(int row = midRow - (L+1);row <= midRow + (L+1);row++){
