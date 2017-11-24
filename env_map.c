@@ -47,7 +47,7 @@
 	void random_fill(cell** grid,int gridHeight,int gridWidth,double p);
 
 //Active Car List/Results Functions
-	car* grid_snapshot(cell** grid,int gridHeight,int gridWidth,double timeStamp,FILE *file);
+	void grid_snapshot(cell** grid,int gridHeight,int gridWidth,double timeStamp,car* active_car_list,FILE *file);
 	void save_results(FILE* f, cell** grid, int gridHeight, int gridWidth, double timeStamp);
 	//fprint functions print to file
 	void fprint_map_elems(int n1, int n2, cell **a,FILE* f);
@@ -95,10 +95,11 @@ int main(){
 	fprint_map_elems(gridHeight,gridWidth,grid,resultsFile); //write the grid to file
 
 	//Get active_car_list and also save car pos and velocities to file
-	car* active_car_list = grid_snapshot(grid,gridHeight,gridWidth,1,resultsFile); //The 2nd to last parameter is timestamp
+	car* active_car_list = (car*)malloc(gridWidth*gridHeight*sizeof(car)); //This needs to be global shared list
 
-	active_car_list = grid_snapshot(grid,gridHeight,gridWidth,2,resultsFile); //Example of the function being called again at timestep=2
-	active_car_list = grid_snapshot(grid,gridHeight,gridWidth,3,resultsFile); //Example of the function being called again at timestep=3
+	grid_snapshot(grid,gridHeight,gridWidth,1,active_car_list,resultsFile); //The 2nd to last parameter is timestamp
+	grid_snapshot(grid,gridHeight,gridWidth,2,active_car_list,resultsFile); //Example of the function being called again at timestep=2
+	grid_snapshot(grid,gridHeight,gridWidth,3,active_car_list,resultsFile); //Example of the function being called again at timestep=3
 
 	fclose(resultsFile);
 
@@ -354,9 +355,8 @@ int main(){
 	//output an array of active cars
 	//This array will be sent to car_calculations() and
 	//later to update_grid()
-	car* grid_snapshot(cell** grid,int gridHeight,int gridWidth,double timeStamp,FILE *file){
+	void grid_snapshot(cell** grid,int gridHeight,int gridWidth,double timeStamp,car* active_car_list,FILE *file){
 
-		car* active_car_list = (car*)malloc(gridWidth*gridHeight*sizeof(car));
 		int active_car_counter = 0; //keep track of how many cars are active
 
 		for(int row = 0; row < gridHeight; row++){
@@ -381,7 +381,7 @@ int main(){
 		//create an output file that stores the snapshot
 		save_results(file,grid,gridHeight,gridWidth,timeStamp);
 
-		return active_car_list; //this will have information old_car information
+		// return active_car_list; //this will have information old_car information
 	}
 
 	//Save results to file
