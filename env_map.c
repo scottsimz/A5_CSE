@@ -101,6 +101,8 @@ int main(){
 	grid_snapshot(grid,gridHeight,gridWidth,2,active_car_list,resultsFile); //Example of the function being called again at timestep=2
 	grid_snapshot(grid,gridHeight,gridWidth,3,active_car_list,resultsFile); //Example of the function being called again at timestep=3
 
+	//End writing to the results file and close connection
+	fprintf(resultsFile,"//END:SNAPSHOTS//");
 	fclose(resultsFile);
 
 	//free memory reserved for grid
