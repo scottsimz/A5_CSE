@@ -21,3 +21,13 @@ Work Remaining:
 #### References
 This folder consists of any extra files that can be used for references. Important files here include:
 1. waitList.c : Sample code that can be used to implement lists in our simulation. I adapted this using Karl's code. Functionality includes: creating a new list with MAX_SIZE, adding elements to the end of the list (and reallocing the size if max_size is crossed), removing elements, freeing memory for list.
+
+
+
+### Added Car Kinematics Functions
+This will not work as it is. 
+The main functions that this contains are an overall car update, a velocity update, function that determines how many spaces a car can move
+and the ghost car generator. Right now I'm not sure how we're calling traffic lights, so this basically doesn't incorporate traffic
+lights. The way I think the junction/intersection is defined in the map, there is only one row/col of cells with type 'J', which
+is where I thought to place the ghost car for functions. However, this ghost car would stop cars going in the other direction
+too so we might need to add a "buffer" zone for the cars, so that everything is shifted over. 
