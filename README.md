@@ -31,3 +31,5 @@ and the ghost car generator. Right now I'm not sure how we're calling traffic li
 lights. The way I think the junction/intersection is defined in the map, there is only one row/col of cells with type 'J', which
 is where I thought to place the ghost car for functions. However, this ghost car would stop cars going in the other direction
 too so we might need to add a "buffer" zone for the cars, so that everything is shifted over. 
+
+Also these functions need a lot of information from the envmap code, so we need to create a .h file to make them work together, or add this to the bottom of the envmap file
