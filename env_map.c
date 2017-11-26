@@ -13,6 +13,7 @@
 	#define JUNCTION 'J'
 	#define TRAFFIC_LIGHT 'T'
 	#define GHOST 'G'
+	#define SPAWN_ENTRY 'I'
 
 //define a car struct
 	typedef struct car {
@@ -66,9 +67,9 @@ int main(){
 	//Set seed rand() for random grid
 	srand(time(NULL));
 
-	int L = 10; //length of a road segment
-	int n_hor = 3; //number of horizontal blocks
-	int n_vert = 3; //number of vertical blocks
+	int L = 2; //length of a road segment
+	int n_hor = 2; //number of horizontal blocks
+	int n_vert = 2; //number of vertical blocks
 
 	int gridHeight = n_vert * (2*L + 3); //no of rows
 	int gridWidth = n_hor * (2*L + 3); //no of columns
@@ -278,6 +279,12 @@ int main(){
 						int midCol = col_block + (L+1);
 
 						fill_intersection(grid,L,midRow,midCol);
+
+						//Add the spawn entry points
+						grid[0][midCol -1].map_elem = SPAWN_ENTRY; //Northbound Spawn
+						grid[gridHeight-1][midCol + 1].map_elem = SPAWN_ENTRY; //Southbound Spawn
+						grid[midRow+1][0].map_elem = SPAWN_ENTRY; //Southbound Spawn
+						grid[midRow-1][gridWidth-1].map_elem = SPAWN_ENTRY; //Southbound Spawn
 													
 					}
 				}			
@@ -396,7 +403,7 @@ int main(){
 			}
 		}
 
-		printf("\nNumber of active cars: %d\n",active_car_counter);	
+		// printf("\nNumber of active cars: %d\n",active_car_counter);	
 
 		//create an output file that stores the snapshot
 		save_results(file,grid,gridHeight,gridWidth,timeStamp);
