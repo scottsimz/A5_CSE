@@ -15,6 +15,16 @@
 	#define GHOST 'G'
 	#define SPAWN_ENTRY 'I'
 
+//for the trafficLights
+	#define GREEN 1
+	#define YELLOW 0
+	#define RED -1
+
+//define the number of timesteps for which each traffic light color stays
+	int n_red = 5;
+	int n_yellow = 3;
+	int n_green = 10;
+
 //define a car struct
 	typedef struct car {
 		int id; //Car ID
@@ -65,6 +75,9 @@
 	void fprint_velocities(int n1, int n2, cell **a,FILE* f);
 	void fprint_car_ids(int n1, int n2, cell **a,FILE* f);
 
+//Traffic Light Functions
+	void update_trafficLight(trafficLight* light, int timestep, int n_red, int n_yellow, int n_green);
+
 //Other Helper Functions
 	double uniform(void);
 	double urand(int LowerLimit,int UpperLimit);
@@ -90,40 +103,61 @@ int main(){
 	//Create the grid + update the traffic_lights_list
 	cell** grid = create_grid(L,gridHeight,gridWidth,traffic_lights_list);
 
-	// // Uncomment below to print out the traffic_lights_list
-	// for(int i = 0; i < n_hor*n_vert; i++){
-	// 	printf("traffic_lights_list[%d].id = %d\n",i,traffic_lights_list[i].id);	
-	// 	printf("traffic_lights_list[%d].x = %d\n",i,traffic_lights_list[i].x);
-	// 	printf("traffic_lights_list[%d].y = %d\n",i,traffic_lights_list[i].y);
-	// 	printf("--\n");	
-	// }
+	//display the grid on screen
+	printf("\nPrinting the grid:\n");
+	print_map_elems(gridHeight,gridWidth,grid);
+
+	// Test out the traffic_lights_list
+	printf("\nPrinting the positions of all traffic lights:\n");
+	printf("  (id,x,y)\n");
+	for(int i = 0; i < n_hor*n_vert; i++){
+		// printf("traffic_lights_list[%d].id = %d\n",i,traffic_lights_list[i].id);	
+		// printf("traffic_lights_list[%d].x = %d\n",i,traffic_lights_list[i].x);
+		// printf("traffic_lights_list[%d].y = %d\n",i,traffic_lights_list[i].y);
+		printf("  %d,%d,%d\n",traffic_lights_list[i].id,traffic_lights_list[i].x,traffic_lights_list[i].y);
+		// printf("--\n");	
+	}
+
+
+	//Test the update_trafficLight() function
+	trafficLight light = traffic_lights_list[0]; //Pick the 0th traffic light
+	int del_t = n_red + n_yellow + n_green; //the period for a traffic light cycle
+
+	//call update_trafficLight on a trafficLight at incremental timesteps
+	printf("\nPrinting the North-South light for the %d-th traffic light at different timesteps:\n",0);
+	printf("  TimeStep,NorthSouthLight\n");
+	for(int i = 0; i < del_t*3; i++){ //run for 3 lightCycles
+		update_trafficLight(&light,i,n_red,n_yellow,n_green);
+		printf("  %d,%d\n",i,light.northSouthLight); //print out the timestep,color-of-the-north-traffic-light		
+	}
+
 
 	
-	//Fill up the grid randomly with cars
-	// double p = 0.3; //prob a cell has a car
-	// random_fill(grid,gridHeight,gridWidth,p);	
+	// Fill up the grid randomly with cars
+	double p = 0.3; //prob a cell has a car
+	random_fill(grid,gridHeight,gridWidth,p);	
 
-	//display the grid on screen
-	// print_map_elems(gridHeight,gridWidth,grid);
-
-	// // //display the car IDs on screen
-	// // print_car_ids(gridHeight,gridWidth,grid);
+	//display the car IDs on screen
+	printf("\nPrinting the grid of car ID's\n");
+	print_car_ids(gridHeight,gridWidth,grid);
 
 	// // //display the velocities on screen
-	// // print_velocities(gridHeight,gridWidth,grid);
+	printf("\nPrinting the grid of car velocities\n");
+	print_velocities(gridHeight,gridWidth,grid);
 
 
 	// //Set up the snapshots results file
-	// FILE *resultsFile = fopen("snapshots.txt","w");
-	// if (resultsFile == NULL){printf("Error opening snapshots.txt file!\n");exit(1);};
-	// fprint_map_elems(gridHeight,gridWidth,grid,resultsFile); //write the grid to file
+	FILE *resultsFile = fopen("snapshots.txt","w");
+	if (resultsFile == NULL){printf("Error opening snapshots.txt file!\n");exit(1);};
+	fprint_map_elems(gridHeight,gridWidth,grid,resultsFile); //write the grid to file
 
-	// //Get active_car_list and also save car pos and velocities to file
-	// car* active_car_list = (car*)malloc(gridWidth*gridHeight*sizeof(car)); //This needs to be global shared list
+	//Get active_car_list and also save car pos and velocities to file
+	car* active_car_list = (car*)malloc(gridWidth*gridHeight*sizeof(car)); //This needs to be global shared list
 
-	// grid_snapshot(grid,gridHeight,gridWidth,1,active_car_list,resultsFile); //The 2nd to last parameter is timestamp
-	// grid_snapshot(grid,gridHeight,gridWidth,2,active_car_list,resultsFile); //Example of the function being called again at timestep=2
-	// grid_snapshot(grid,gridHeight,gridWidth,3,active_car_list,resultsFile); //Example of the function being called again at timestep=3
+	//Uncomment to test the 
+	grid_snapshot(grid,gridHeight,gridWidth,1,active_car_list,resultsFile); //The 2nd to last parameter is timestamp
+	grid_snapshot(grid,gridHeight,gridWidth,2,active_car_list,resultsFile); //Example of the function being called again at timestep=2
+	grid_snapshot(grid,gridHeight,gridWidth,3,active_car_list,resultsFile); //Example of the function being called again at timestep=3
 
 	// //End writing to the results file and close connection
 	// fprintf(resultsFile,"//END:SNAPSHOTS//");
@@ -141,7 +175,22 @@ int main(){
 
 
 	//Update Traffic Lights
-	// void update_traffic_lights
+	void update_trafficLight(trafficLight* light, int timestep, int n_red, int n_yellow, int n_green){
+		
+		int del_t = n_red + n_yellow + n_green; //the period for a traffic light cycle
+
+		int lightTimer = timestep % del_t;
+
+		if (lightTimer >= 0 && lightTimer < n_red){ // we are at the start of the light cycle
+			light->northSouthLight = RED; //start NS light at RED
+		} else if (lightTimer > n_red && lightTimer < (n_red + n_yellow)){ //we are now in yellow region
+			light->northSouthLight = YELLOW; 
+		} else if (lightTimer > (n_red + n_yellow) && lightTimer < (n_red + n_yellow + n_green)){ //we are now in green region
+			light->northSouthLight = GREEN; 
+		} else { //we are in the final yellow region of the light cycle
+			light->northSouthLight = YELLOW; 
+		}
+	}
 	
 
 
@@ -301,7 +350,7 @@ int main(){
 
 	cell** create_grid(int L, int gridHeight, int gridWidth,trafficLight* traffic_lights_list){
 
-		printf("Grid Height = %d, Grid Width = %d\n",gridWidth,gridHeight);
+		// printf("Grid Height = %d, Grid Width = %d\n",gridWidth,gridHeight);
 		
 		// //Reserve space for full grid
 		cell** grid = malloc_grid(gridHeight,gridWidth);
@@ -341,6 +390,7 @@ int main(){
 						traffic_lights_list[intersectionCount].id = intersectionCount;
 						traffic_lights_list[intersectionCount].x = midRow;  //x-coordinate
 						traffic_lights_list[intersectionCount].y = midCol; //y-coordinate
+						traffic_lights_list[intersectionCount].northSouthLight = RED; //y-coordinate
 						//above might be suspect to seg-faults
 						intersectionCount++;
 													
