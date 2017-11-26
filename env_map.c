@@ -35,6 +35,9 @@
 
 //define a traffic light structure
 	typedef struct trafficLight {
+		int id;
+		int x;
+		int y;
 		int northSouthLight;
 		//eastWestLight = -1*northSouthLight
 	} trafficLight;
@@ -42,9 +45,7 @@
 
 //Matrix Prototypes
 	cell **malloc_grid(int n1, int n2);
-	int **malloc_int_matrix(int n1, int n2);
 	void free_grid(int n1, int n2, cell **a);
-	void free_int_matrix(int n1, int n2, int **a);
 	//print functions print to screen
 	void print_map_elems(int n1, int n2, cell **a);
 	void print_velocities(int n1, int n2, cell **a);
@@ -52,7 +53,7 @@
 
 	
 //Grid Initialization Functions
-	cell** create_grid(int L, int gridHeight, int gridWidth, int** traffic_lights_list);
+	cell** create_grid(int L, int gridHeight, int gridWidth, trafficLight* traffic_lights_list);
 	void fill_intersection(cell** grid,int L, int midRow,int midCol);
 	void random_fill(cell** grid,int gridHeight,int gridWidth,double p);
 
@@ -83,25 +84,27 @@ int main(){
 	int gridWidth = n_hor * (2*L + 3); //no of columns
 
 	//reserve memory for the traffic lights list
-	int** traffic_lights_list = malloc_int_matrix(n_hor*n_vert,2); //need to free memory for this
+	int num_trafficLights = n_hor*n_vert;
+	trafficLight* traffic_lights_list = (trafficLight*)malloc(num_trafficLights*sizeof(trafficLight));
 
 	//Create the grid + update the traffic_lights_list
 	cell** grid = create_grid(L,gridHeight,gridWidth,traffic_lights_list);
 
-	//Uncomment below to print out the traffic_lights_list
+	// // Uncomment below to print out the traffic_lights_list
 	// for(int i = 0; i < n_hor*n_vert; i++){
-	// 	printf("traffic_lights_list[%d][0] = %d\n",i,traffic_lights_list[i][0]);	
-	// 	printf("traffic_lights_list[%d][1] = %d\n",i,traffic_lights_list[i][1]);
+	// 	printf("traffic_lights_list[%d].id = %d\n",i,traffic_lights_list[i].id);	
+	// 	printf("traffic_lights_list[%d].x = %d\n",i,traffic_lights_list[i].x);
+	// 	printf("traffic_lights_list[%d].y = %d\n",i,traffic_lights_list[i].y);
 	// 	printf("--\n");	
 	// }
 
 	
 	//Fill up the grid randomly with cars
-	double p = 0.3; //prob a cell has a car
-	random_fill(grid,gridHeight,gridWidth,p);	
+	// double p = 0.3; //prob a cell has a car
+	// random_fill(grid,gridHeight,gridWidth,p);	
 
 	//display the grid on screen
-	print_map_elems(gridHeight,gridWidth,grid);
+	// print_map_elems(gridHeight,gridWidth,grid);
 
 	// // //display the car IDs on screen
 	// // print_car_ids(gridHeight,gridWidth,grid);
@@ -128,8 +131,8 @@ int main(){
 
 	// //free memory reserved for grid
 	// //Need to adjust this. The grid will be used by other programs so shouldn't be freed here.
-	free_int_matrix(n_hor*n_vert,2,traffic_lights_list);
-	free_grid(gridHeight,gridWidth,grid);
+	// free_int_matrix(n_hor*n_vert,2,traffic_lights_list);
+	// free_grid(gridHeight,gridWidth,grid);
 
 
 }
@@ -137,7 +140,8 @@ int main(){
 //Function Definitions
 
 
-	//Get Traffic Lights
+	//Update Traffic Lights
+	// void update_traffic_lights
 	
 
 
@@ -178,42 +182,6 @@ int main(){
 
 		    return mat;
 		}
-
-		//Input: number of rows (n1) and columns (n2) required
-		//Output: Reserve space for a matrix of size n1 x n2
-		int **malloc_int_matrix(int n1, int n2) {
-
-		    int **mat = NULL;       // pointer to the matrix
-
-			if(n1>0 && n2 >0){ //checking for invalid inputs
-			    mat = (int**)malloc(n1*sizeof(int *)); //Allocate memory for n1 rows
-
-			    if(mat == NULL){
-			    	printf("Error: Could not reserve memory for matrix.");
-			    	exit(1);
-			    }
-
-				for(int i = 0; i < n1; i++){
-					mat[i] = (int*)malloc(n2*sizeof(int)); //Allocate memory for n2 columns for each of the n1 rows
-
-					if (mat[i] == NULL) { //if memory allocation failure
-						for (int j = 0; j < i; j++) {  // free memory reserved for all previous cells
-							free(mat[j]);
-						}
-
-						printf("Could not reserve memory for matrix.");
-					    exit(1);
-					}
-
-
-				}
-			} else {
-				printf("Invalid input for grid: Make sure n1 > 0 && n2 > 0");
-				exit(1);
-			}
-
-		    return mat;
-		}		
 
 		//free the memory reserved for a grid
 		//input: size of matrix n1 and n2, and the pointer to the matrix
@@ -331,7 +299,7 @@ int main(){
 
 	//Grid Initialization Functions	
 
-	cell** create_grid(int L, int gridHeight, int gridWidth,int** traffic_lights_list){
+	cell** create_grid(int L, int gridHeight, int gridWidth,trafficLight* traffic_lights_list){
 
 		printf("Grid Height = %d, Grid Width = %d\n",gridWidth,gridHeight);
 		
@@ -362,7 +330,6 @@ int main(){
 						int midCol = col_block + (L+1);
 
 						fill_intersection(grid,L,midRow,midCol);
-						
 
 						//Add the spawn entry points
 						grid[0][midCol -1].map_elem = SPAWN_ENTRY; //Northbound Spawn
@@ -371,8 +338,9 @@ int main(){
 						grid[midRow-1][gridWidth-1].map_elem = SPAWN_ENTRY; //Southbound Spawn
 
 						//Add a traffic light to the traffic_lights_list
-						traffic_lights_list[intersectionCount][0] = midRow;  //x-coordinate
-						traffic_lights_list[intersectionCount][1] = midCol; //y-coordinate
+						traffic_lights_list[intersectionCount].id = intersectionCount;
+						traffic_lights_list[intersectionCount].x = midRow;  //x-coordinate
+						traffic_lights_list[intersectionCount].y = midCol; //y-coordinate
 						//above might be suspect to seg-faults
 						intersectionCount++;
 													
