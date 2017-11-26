@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 		printf("Error main() - Expected one argument, an integer for the simulation duration\n");
 		return 1;
 	}
-	// store input
+	// store argument
 	int sim_time = strtol(argv[1],NULL,10);
 	// check invalid argument range
 	if (sim_time < 1)
@@ -139,6 +139,9 @@ void spawn( struct spawner *ptr )
 		printf("Error spawn() - list of spawners is empty\n");
 		return;
 	}
+
+	// declarations
+	struct car cars[MAX_CARS]; // external array from main()
 
 	for( ; ptr!=NULL; ptr = ptr->next )
 	{
@@ -265,7 +268,7 @@ int get_timer( char dir )
 	}
 	else
 	{
-		print("Error get_timer() - Invalid direction %c set\n",dir);
+		printf("Error get_timer() - Invalid direction %c set\n",dir);
 		return 0;
 	}
 }

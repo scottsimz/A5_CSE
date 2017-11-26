@@ -22,16 +22,18 @@
 #define W_SPAWN_MIN 1
 #define W_SPAWN_MAX 10
 
-extern int MAX_CARS;
+extern int MAX_CARS; // declared here but defined & initialized in simulate.c
 
+// stores variables of motion for each car
 struct car{
 	int active; // true=1, false=0
 	int speed; // speed of car
-	int x; // x-pos of car
-	int y; // y-pos of car
+	int x; // x-position of car
+	int y; // y-position of car
 	char direction; // will be either 'N','S','E','W'
 };
 
+// spawns cars into the map from the edges
 struct spawner{
 	struct spawner *next;
 	char direction;
@@ -40,10 +42,14 @@ struct spawner{
 	int y;
 };
 
+// cell of map
+struct map{
+	char element;
+	int car;
+};
 //--------------------------------------------------
 // FUNCTIONS TO BE SHARED
-
-
+struct car kinematics(struct car car_old);
 
 //--------------------------------------------------
 #endif /* TRAFFIC_H_ */
