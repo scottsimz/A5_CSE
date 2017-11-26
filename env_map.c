@@ -48,7 +48,7 @@
 		int id;
 		int x;
 		int y;
-		int northSouthLight;
+		int northSouthLight; //the color of the North and South facing lights
 		//eastWestLight = -1*northSouthLight
 	} trafficLight;
 
@@ -126,7 +126,7 @@ int main(){
 	//call update_trafficLight on a trafficLight at incremental timesteps
 	printf("\nPrinting the North-South light for the %d-th traffic light at different timesteps:\n",0);
 	printf("  TimeStep,NorthSouthLight\n");
-	for(int i = 0; i < del_t*3; i++){ //run for 3 lightCycles
+	for(int i = 0; i < del_t*10; i++){ //run for 3 lightCycles
 		update_trafficLight(&light,i,n_red,n_yellow,n_green);
 		printf("  %d,%d\n",i,light.northSouthLight); //print out the timestep,color-of-the-north-traffic-light		
 	}
@@ -177,15 +177,15 @@ int main(){
 	//Update Traffic Lights
 	void update_trafficLight(trafficLight* light, int timestep, int n_red, int n_yellow, int n_green){
 		
-		int del_t = n_red + n_yellow + n_green; //the period for a traffic light cycle
+		int period = n_red + n_yellow + n_green + n_yellow; //the period for a traffic light cycle
 
-		int lightTimer = timestep % del_t;
+		int lightTimer = timestep % period;
 
-		if (lightTimer >= 0 && lightTimer < n_red){ // we are at the start of the light cycle
+		if (lightTimer >= 0 && lightTimer =< n_red){ // we are at the start of the light cycle
 			light->northSouthLight = RED; //start NS light at RED
-		} else if (lightTimer > n_red && lightTimer < (n_red + n_yellow)){ //we are now in yellow region
+		} else if (lightTimer > n_red && lightTimer =< (n_red + n_yellow)){ //we are now in yellow region
 			light->northSouthLight = YELLOW; 
-		} else if (lightTimer > (n_red + n_yellow) && lightTimer < (n_red + n_yellow + n_green)){ //we are now in green region
+		} else if (lightTimer > (n_red + n_yellow) && lightTimer =< (n_red + n_yellow + n_green)){ //we are now in green region
 			light->northSouthLight = GREEN; 
 		} else { //we are in the final yellow region of the light cycle
 			light->northSouthLight = YELLOW; 
