@@ -4,7 +4,7 @@
 
 
 //for the env_map
-	#define EMPTY '0'
+	#define EMPTY ' '
 	#define SOUTH 'S'
 	#define NORTH 'N'
 	#define WEST 'W'
@@ -12,6 +12,7 @@
 	#define MIDDLE_LANE 'M'
 	#define JUNCTION 'J'
 	#define TRAFFIC_LIGHT 'T'
+	#define GHOST 'G'
 
 //define a car struct
 	typedef struct car {
@@ -65,9 +66,9 @@ int main(){
 	//Set seed rand() for random grid
 	srand(time(NULL));
 
-	int L = 5; //length of a road segment
-	int n_hor = 1; //number of horizontal blocks
-	int n_vert = 1; //number of vertical blocks
+	int L = 10; //length of a road segment
+	int n_hor = 3; //number of horizontal blocks
+	int n_vert = 3; //number of vertical blocks
 
 	int gridHeight = n_vert * (2*L + 3); //no of rows
 	int gridWidth = n_hor * (2*L + 3); //no of columns
@@ -82,11 +83,11 @@ int main(){
 	//display the grid on screen
 	print_map_elems(gridHeight,gridWidth,grid);
 
-	//display the car IDs on screen
-	print_car_ids(gridHeight,gridWidth,grid);
+	// //display the car IDs on screen
+	// print_car_ids(gridHeight,gridWidth,grid);
 
-	//display the velocities on screen
-	print_velocities(gridHeight,gridWidth,grid);
+	// //display the velocities on screen
+	// print_velocities(gridHeight,gridWidth,grid);
 
 
 	//Set up the snapshots results file
@@ -185,7 +186,7 @@ int main(){
 						if(j==n2-1){
 							printf("%c",a[i][j].map_elem); //Doesn't add a comma for the last column
 						} else {
-							printf("%c,",a[i][j].map_elem); //Adds a comma after every element to separate them
+							printf("%c",a[i][j].map_elem); //Adds a comma after every element to separate them
 						}
 
 					}
@@ -293,16 +294,33 @@ int main(){
 
 		//Create the North-South Lanes
 		for(int row = midRow - (L+1);row <= midRow + (L+1);row++){
-				grid[row][midCol - 1].map_elem = NORTH;
-				grid[row][midCol + 1].map_elem = SOUTH;
-				grid[row][midCol].map_elem = MIDDLE_LANE;
+
+				if (abs(row - midRow) == 2) //Juntion space needed for ghost cars
+				{
+					grid[row][midCol - 1].map_elem = GHOST;
+					grid[row][midCol + 1].map_elem = GHOST;
+					grid[row][midCol].map_elem = MIDDLE_LANE;	
+
+				} else{
+					grid[row][midCol - 1].map_elem = NORTH;
+					grid[row][midCol + 1].map_elem = SOUTH;
+					grid[row][midCol].map_elem = MIDDLE_LANE;	
+				}
+				
 		}
 
 		//Create the East-West Lanes
 		for(int col = midCol - (L+1);col <= midCol + (L+1);col++){
-				grid[midRow - 1][col].map_elem = WEST;
-				grid[midRow + 1][col].map_elem = EAST;
-				grid[midRow][col].map_elem = MIDDLE_LANE;
+				if (abs(col - midCol) == 2) //Juntion space needed for ghost cars
+				{
+					grid[midRow - 1][col].map_elem = GHOST;
+					grid[midRow + 1][col].map_elem = GHOST;
+					grid[midRow][col].map_elem = MIDDLE_LANE;					
+				} else {
+					grid[midRow - 1][col].map_elem = WEST;
+					grid[midRow + 1][col].map_elem = EAST;
+					grid[midRow][col].map_elem = MIDDLE_LANE;
+				}
 		}
 
 		//fill up the junctions
