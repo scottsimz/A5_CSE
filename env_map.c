@@ -90,8 +90,8 @@ int main(){
 	srand(time(NULL));
 
 	int L = 2; //length of a road segment
-	int n_hor = 5; //number of horizontal blocks
-	int n_vert = 3; //number of vertical blocks
+	int n_hor = 2; //number of horizontal blocks
+	int n_vert = 6; //number of vertical blocks
 
 	int gridHeight = n_vert * (2*L + 3); //no of rows
 	int gridWidth = n_hor * (2*L + 3); //no of columns
@@ -181,11 +181,11 @@ int main(){
 
 		int lightTimer = timestep % period;
 
-		if (lightTimer >= 0 && lightTimer =< n_red){ // we are at the start of the light cycle
+		if (lightTimer >= 0 && lightTimer <= n_red){ // we are at the start of the light cycle
 			light->northSouthLight = RED; //start NS light at RED
-		} else if (lightTimer > n_red && lightTimer =< (n_red + n_yellow)){ //we are now in yellow region
+		} else if (lightTimer > n_red && lightTimer <= (n_red + n_yellow)){ //we are now in yellow region
 			light->northSouthLight = YELLOW; 
-		} else if (lightTimer > (n_red + n_yellow) && lightTimer =< (n_red + n_yellow + n_green)){ //we are now in green region
+		} else if (lightTimer > (n_red + n_yellow) && lightTimer <= (n_red + n_yellow + n_green)){ //we are now in green region
 			light->northSouthLight = GREEN; 
 		} else { //we are in the final yellow region of the light cycle
 			light->northSouthLight = YELLOW; 
