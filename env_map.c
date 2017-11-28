@@ -133,29 +133,30 @@ int main(){
 	}
 	printf("\n");	
 
-	// Test out the traffic_lights_list
-	printf("\nPrinting the positions of all traffic lights:\n");
-	printf("  (id,x,y)\n");
-	for(int i = 0; i < n_hor*n_vert; i++){
-		// printf("traffic_lights_list[%d].id = %d\n",i,traffic_lights_list[i].id);	
-		// printf("traffic_lights_list[%d].x = %d\n",i,traffic_lights_list[i].x);
-		// printf("traffic_lights_list[%d].y = %d\n",i,traffic_lights_list[i].y);
-		printf("  %d,%d,%d\n",traffic_lights_list[i].id,traffic_lights_list[i].x,traffic_lights_list[i].y);
-		// printf("--\n");	
-	}
+
+	// // Test out the traffic_lights_list
+	// printf("\nPrinting the positions of all traffic lights:\n");
+	// printf("  (id,x,y)\n");
+	// for(int i = 0; i < n_hor*n_vert; i++){
+	// 	// printf("traffic_lights_list[%d].id = %d\n",i,traffic_lights_list[i].id);	
+	// 	// printf("traffic_lights_list[%d].x = %d\n",i,traffic_lights_list[i].x);
+	// 	// printf("traffic_lights_list[%d].y = %d\n",i,traffic_lights_list[i].y);
+	// 	printf("  %d,%d,%d\n",traffic_lights_list[i].id,traffic_lights_list[i].x,traffic_lights_list[i].y);
+	// 	// printf("--\n");	
+	// }
 
 
-	// Test the update_trafficLight() function
-	trafficLight light = traffic_lights_list[0]; //Pick the 0th traffic light
-	int del_t = n_red + n_yellow + n_green; //the period for a traffic light cycle
+	// // Test the update_trafficLight() function
+	// trafficLight light = traffic_lights_list[0]; //Pick the 0th traffic light
+	// int del_t = n_red + n_yellow + n_green; //the period for a traffic light cycle
 
-	//call update_trafficLight on a trafficLight at incremental timesteps
-	printf("\nPrinting the North-South light for the %d-th traffic light at different timesteps:\n",0);
-	printf("  TimeStep,NorthSouthLight\n");
-	for(int i = 0; i < del_t*3; i++){ //run for 3 lightCycles
-		update_trafficLight(&light,i,n_red,n_yellow,n_green);
-		printf("  %d,%d\n",i,light.northSouthLight); //print out the timestep,color-of-the-north-traffic-light		
-	}
+	// //call update_trafficLight on a trafficLight at incremental timesteps
+	// printf("\nPrinting the North-South light for the %d-th traffic light at different timesteps:\n",0);
+	// printf("  TimeStep,NorthSouthLight\n");
+	// for(int i = 0; i < del_t*3; i++){ //run for 3 lightCycles
+	// 	update_trafficLight(&light,i,n_red,n_yellow,n_green);
+	// 	printf("  %d,%d\n",i,light.northSouthLight); //print out the timestep,color-of-the-north-traffic-light		
+	// }
 
 
 	// // //display the velocities on screen
@@ -378,6 +379,7 @@ int main(){
 		for (int row = 0; row < gridHeight; row++){
 			for(int col = 0; col < gridWidth; col++){
 				grid[row][col].map_elem = EMPTY;
+				grid[row][col].car_id = -1;
 			}
 		}
 		
