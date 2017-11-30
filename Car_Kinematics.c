@@ -157,7 +157,7 @@ int main(){
 			printf("-----------------------\n");
 			printf("x is %d\n",x_pos);
 			printf("y is %d\n",y_pos);
-			char direction = EAST;//activeCarList[i].map_elem;
+			char direction = SOUTH;//activeCarList[i].map_elem;
 			printf("GOING %c\n ",direction);
 
 			//CHECK SPACES
@@ -294,13 +294,17 @@ void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 	//for(int i = 0; i < ncars; i++){
 
 		//CHANGE: GET DIRECTION FROM CAR STRUCT INSTEAD OF GRID
-		char direction = EAST;
-//
+		char direction = SOUTH;
+
 //		if(northSouthLight == RED || northSouthLight == YELLOW){
-//			ghost()
+//			ghost(grid, midRow, midCol, direction, numcars);
 //		}
 //
+//		else(){
 //
+//		}
+
+
 		//if this is an east road and there is a car in a cell
 		if((direction == EAST)){// && (grid[x][y].car_id != -1)){
 			//Calculate number of cells in front of car
@@ -322,7 +326,7 @@ void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			printf("x old %d , x new %d\n", c->x_old, c->x_new);
 
 			//Old spot has car ID of -1 (no car)
-			grid[c->x_old][c->y_old].car_id = -1;
+			//grid[c->x_old][c->y_old].car_id = -1;
 
 		}//end if east
 
@@ -413,7 +417,9 @@ void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 
 
 //GENERATE GHOST CAR FOR RED LIGHTS
-void ghost(cell ** grid, int midRow, int midCol, char direction, int numcars){
+void ghost(cell ** grid, int midRow, int midCol, char direction, int numcars, trafficLight *color){
+
+	int light = color->northSouthLight;
 
 	//EAST
 	int x_loc_E = midCol - 2;
@@ -432,12 +438,12 @@ void ghost(cell ** grid, int midRow, int midCol, char direction, int numcars){
 	int y_loc_S = midRow + 2;
 
 
-	if((direction == EAST) || (direction == WEST)){
+	if(light == 1 || light == 0){
 		grid[x_loc_E][y_loc_E].car_id = numcars + 1;
 		grid[x_loc_W][y_loc_W].car_id = numcars + 1;
 	}
 
-	else if((direction == NORTH) || (direction == SOUTH)){
+	else{
 		grid[x_loc_N][y_loc_N].car_id = numcars + 1;
 		grid[x_loc_S][y_loc_S].car_id = numcars + 1;
 	}
@@ -819,6 +825,7 @@ void free_matrix(int n1, int n2, int **a) {
 
 						//create an initial car element
 						car init_car;
+//						init_car.map_elem = E;
 						init_car.id = activeCarListCounter; //this should now be a unique id
 						init_car.x_old = col;
 						init_car.y_old = row;
