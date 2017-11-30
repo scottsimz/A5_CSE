@@ -92,12 +92,9 @@
 	double uniform(void);
 	double urand(int LowerLimit,int UpperLimit);
 
-
-
-
 	int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, char direction);
 	int update_velocity(struct car *c, cell** grid, int empty);
-	void update_car(struct car *c, cell** grid, int empty, int ncars, int i);
+	void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList);
 
 //The main function
 int main(){
@@ -132,7 +129,6 @@ int main(){
 	int n_cars = 10;
 	car* activeCarList = (car*)malloc(max_cars * sizeof(car));
 
-
 	// Fill up the grid randomly with cars
 	double p = 0.3; //prob a cell has a car
 	random_fill(grid,gridHeight,gridWidth,p,activeCarList);
@@ -150,33 +146,39 @@ int main(){
 
 	//-------------------FELICE------------------------------------------------
 	//loop over active car list from counter
+
+
 	for(int i = 0; i < n_cars; i++){
 		if(activeCarList[i].id !=-1){
+
 			int index = activeCarList[i].id; // this is the ID of the car we're considering
 			int x_pos = activeCarList[i].x_old; //current x position of car
 			int y_pos = activeCarList[i].y_old; //current y position of car
-
+			printf("-----------------------\n");
 			printf("x is %d\n",x_pos);
 			printf("y is %d\n",y_pos);
-			char direction = SOUTH;//activeCarList[i].map_elem;
-			printf("-----------------------\n");
+			char direction = EAST;//activeCarList[i].map_elem;
 			printf("GOING %c\n ",direction);
 
 			//CHECK SPACES
 			int empty = emptycellcount(grid, gridWidth, gridHeight, x_pos, y_pos, direction);
-			printf("empty spaces in front = %d\n", empty);
+			printf("Returned emptyspaces count = %d\n", empty);
 
 			//UPDATE VELOCITY
 			//printf("VELOCITY OLD Before update %d\n",activeCarList[i].v_old);
-			int v = update_velocity(&activeCarList[i], grid, empty);
-			printf("int v in main.c = %d\n",v);
+			printf("Old Velocity = %d\n",activeCarList[i].v_old);
 
-			//UPDATE CAR
-			update_car(&activeCarList[i], grid, empty, n_cars, i );
+			//int v = update_velocity(&activeCarList[i], grid, empty);
+			//printf("Returned velocity = %d\n",v);
+			printf("**** BEFORE UPDATE CAR FUNCTION ********\n");
+			update_car(&activeCarList[i], grid, empty, n_cars, i, activeCarList);
 
 		}//end if
 
 	}
+
+	print_car_ids(gridHeight,gridWidth,grid);
+
 }
 
 
@@ -192,13 +194,13 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 	if(direction == EAST){
 		for(int x = i; x < gridWidth; x++){
 			for(int y = j; y < j+1; y++){
-				//printf("grid x %d\n ", activeCarList[x][y]);
 				if(grid[i+1][j].car_id == -1){
-					//printf("emptyspaces %d\n", emptyspaces);
+					printf("emptyspaces %d\n", emptyspaces);
 					emptyspaces++;
 				}
 				else{
-					break;
+					//printf("in else break\n");
+					return emptyspaces;
 				}//end else
 			}//end for i
 		}//end if east
@@ -232,17 +234,17 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 	}//end if west
 
 	else if(direction == SOUTH){
-		printf("In south direction else statement\n");
+		//printf("In south direction else statement\n");
 		for(int x = i; x < i+1; x++){
 			for(int y = j; y < gridHeight; y++){
 				//printf("grid x %d\n ", activeCarList[x][y]);
 				if(grid[i][j+1].car_id == -1){
 					//printf("emptyspaces %d\n", emptyspaces);
-					emptyspaces+=1;
-					printf("grid id  (%d, %d) %d\n", x,y ,grid[i][j+1].car_id);
+					emptyspaces++;
+					//printf("grid id  (%d, %d) %d\n", x,y ,grid[i][j+1].car_id);
 				}
 				else{
-					printf("in else statement");
+					//printf("in else statement");
 					break;
 				}//end else
 			}//end for i
@@ -257,31 +259,30 @@ int update_velocity(struct car *c, cell** grid, int empty){
 
 	double rn = (double)rand() / RAND_MAX;
 
-	//Set current value velocity as "old velocity"?????
-	c->v_new = c->v_old;
-//	c->v_old = c->v_new;
+	//Set current value velocity as "old velocity"
+	//printf("V NEW %d\n", c->v_new);
+	//c->v_new = c->v_old;
 
 	//Create a temporary integer for the current velocity
-	int v_temp = c->v_old;
-	printf("v_temp%d\n", c->v_old);
+	int v_temp = c->v_new;
+	c->v_old = v_temp;
 
 	//If the current velocity is less than v max, increment
 	if(v_temp < vmax){
 		v_temp ++;
 	}
 
-	//If the new vtemp velocity is greater than number of spaces in front
-	//V temp is the number in front minus 1.
+	//NS Model says d-1, but what if there are 0 spaces?
+	//It should just be min(d,v)?
 	if(empty < v_temp){
-		v_temp = empty - 1;
+		v_temp = empty;
 	}
-
+	printf("V temp is --- %d\n",v_temp);
 	//Randomization step. If random number less than prob, decrement vtemp
 	if(rn < p){
 		printf("YES RANDOMIZATION\n");
 		v_temp --;
 	}
-
 	//The new velocity is v_temp
 	c->v_new = v_temp;
 	return v_temp;
@@ -289,181 +290,171 @@ int update_velocity(struct car *c, cell** grid, int empty){
 
 
 
-void update_car(struct car *c, cell** grid, int empty, int ncars, int i ){
+void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList){
 	//for(int i = 0; i < ncars; i++){
 
 		//CHANGE: GET DIRECTION FROM CAR STRUCT INSTEAD OF GRID
-		//char direction = grid[c->x_old][c->y_old].map_elem;
-		char direction = SOUTH;
-
-		int x = c->x_old;
-		int y = c->y_old;
-
+		char direction = EAST;
+//
+//		if(northSouthLight == RED || northSouthLight == YELLOW){
+//			ghost()
+//		}
+//
+//
 		//if this is an east road and there is a car in a cell
-		if((direction == EAST) && (grid[x][y].car_id != -1)){
-
-			//see traffic lights
-			//					if(TRAFFIC == RED){
-			//						car gc = ghost(c,grid,midRow,midCol);
-			//					}
-
+		if((direction == EAST)){// && (grid[x][y].car_id != -1)){
 			//Calculate number of cells in front of car
 	//		numfront = emptycellcount(c,grid,direction);
 
-			//update velocity first to see how far it wants to go.
-			c->v_new = update_velocity(&c[i], grid, empty);
-			//current positions become old
-			c->x_old = c->x_new;
-			c->y_old = c->y_new;
+			int v = update_velocity(&activeCarList[i], grid, empty);
 
-			//new positions become current positions
-			c->x_new = c->x_old+c->v_new;
-			//y direction does not change with east bound traffic
-			c->y_new = y;
+			printf("V in update_car= %d\n",v);
 
-			//Old spot has car ID of 0 (no car)
-			grid[c->x_old][c->y_old].car_id = 0;
-			grid[c->x_new][c->y_new].car_id = 1;
+			//UPDATE X COORDINATES
+			int x_current = c->x_new;
+			c->x_old = x_current;
+			c->x_new = x_current + v;
+
+			//Y STAYS THE SAME IN WEST-BOUND TRAFFIC
+			c->y_new = c->y_old;
+
+			printf("y old %d , y new %d\n", c->y_old, c->y_new);
+			printf("x old %d , x new %d\n", c->x_old, c->x_new);
+
+			//Old spot has car ID of -1 (no car)
+			grid[c->x_old][c->y_old].car_id = -1;
 
 		}//end if east
 
 
-		if((direction == WEST) && (grid[x][y].car_id != -1)){
-
-			//see traffic lights
-			//					if(TRAFFIC == RED){
-			//						car gc = ghost(c,grid,midRow,midCol);
-			//					}
+		else if((direction == WEST)){// && (grid[x][y].car_id != -1)){
 
 			//Calculate number of cells in front of car
 //			numfront = emptycellcount(c,grid,direction);
 
-			//update velocity first to see how far it wants to go.
-			c->v_new = update_velocity(c,grid,numfront);
+			int v = update_velocity(&activeCarList[i], grid, empty);
 
-			//current positions become old
-			c->x_old = c->x_new;
-			c->y_old = c->y_new;
+			printf("new velocity in function %d\n",v);
 
-			//new positions become current positions
-			c->x_new = c->x_old-c->v_new;
-			//y direction does not change with west bound traffic
-			c->y_new = y;
+			//UPDATE X COORDINATES
+			int x_current = c->x_new;
+			c->x_old = x_current;
+			c->x_new = x_current - v;
 
-			//Old spot has car ID of 0 (no car)
+			//Y STAYS THE SAME IN WEST-BOUND TRAFFIC
+			c->y_new = c->y_old;
+
+			printf("y old %d , y new %d\n", c->y_old, c->y_new);
+			printf("x old %d , x new %d\n", c->x_old, c->x_new);
+
+			//Old spot has car ID of -1 (no car)
 			grid[c->x_old][c->y_old].car_id = -1;
-			//grid[c->x_new][c->y_new].car_id = 1;
 
 		}//end if west
 
-		if((direction == NORTH) && (grid[x][y].car_id != -1)){
-
-
-			//see traffic lights
-			//					if(TRAFFIC == RED){
-			//						car gc = ghost(c,grid,midRow,midCol);
-			//					}
-
+		else if((direction == NORTH)){// && (grid[x][y].car_id != -1)){
+			printf("IN IF NORTH\n");
 			//Calculate number of cells in front of car
 //			numfront = emptycellcount(c,grid,direction);
 
-			//update velocity first to see how far it wants to go.
-			c->v_new = update_velocity(c,grid,numfront);
+			int v = update_velocity(&activeCarList[i], grid, empty);
 
-			//current positions become old
-			c->x_old = c->x_new;
-			c->y_old = c->y_new;
+			printf("new velocity in function %d\n",v);
 
-			//new positions become current positions
-			c->y_new = c->y_old-c->v_new;
-			//x direction does not change with north bound traffic
-			c->x_new = x;
+			//UPDATE Y COORDINATES
+			int y_current = c->y_new;
+			c->y_old = y_current;
+			c->y_new = y_current - v;
+
+			//X STAYS THE SAME IN NORTH-BOUND TRAFFIC
+			c->x_new = c->x_old;
+
+			printf("y old %d , y new %d\n", c->y_old, c->y_new);
+			printf("x old %d , x new %d\n", c->x_old, c->x_new);
 
 			//Old spot has car ID of 0 (no car)
-			grid[c->x_old][c->y_old].car_id = 0;
-			grid[c->x_new][c->y_new].car_id = 1;
+			grid[c->x_old][c->y_old].car_id = -1;
 
 		}//end if north
 
 
-		if((direction == SOUTH)){// && (grid[x][y].car_id != -1)){
+		else if((direction == SOUTH)){// && (grid[x][y].car_id != -1)){
 			printf("In if south\n");
-
-			//see traffic lights
-			//if(TRAFFIC == RED){
-			//car gc = ghost(c,grid,midRow,midCol);
-			//}
 
 			//Calculate number of cells in front of car
 //			numfront = emptycellcount(c,grid,direction);
 
 			//update velocity first to see how far it wants to go.
-			int v = update_velocity(c,grid,numfront);
+			int v = update_velocity(&activeCarList[i], grid, empty);
+
 			printf("new velocity in function %d\n",v);
-//			//current positions become old
-//			c->x_old = c->x_new;
-//			c->y_old = c->y_new;
 
-//			//new positions
-//			c->y_new = c->y_old-c->v_new;
-//			//x direction does not change with south bound traffic
-//			c->x_new = x;
-//
-//			//Old spot has car ID of 0 (no car)
-//			grid[c->x_old][c->y_old].car_id = 0;
-//			grid[c->x_new][c->y_new].car_id = 1;
+			//UPDATE Y COORDINATES
+			int y_current = c->y_new;
+			c->y_old = y_current;
+			c->y_new = y_current + v;
 
+			//X STAYS THE SAME IN SOUTH-BOUND TRAFFIC
+			c->x_new = c->x_old;
+
+			printf("y old %d , y new %d\n", c->y_old, c->y_new);
+			printf("x old %d , x new %d\n", c->x_old, c->x_new);
+
+			//Old spot has car ID of 0 (no car)
+			grid[c->x_old][c->y_old].car_id = -1;
 
 		}//end if south
 
 
-//	}//end for i
-
-//	return;
-
-}//end update car east function
+}//end update car south function
 
 
 
 
 
 //GENERATE GHOST CAR FOR RED LIGHTS
-//car ghost(car ghost_car, cell ** grid, int midRow, int midCol){
-//
-//	malloc_carstruct(ghost_car);
-//
-//	int row_east = midRow - 1;
-//	int col_east = midCol - 1;
-//
-//	int row_west = midRow + 1;
-//	int col_west = midCol + 1;
-//
-//	ghost_car.id = 2; //Certain ID for ghost cars?
-//	ghost_car.x_old = 0;
-//	ghost_car.y_old = 0;
-//	ghost_car.v_old = 0; //Velocity is 0
-//	ghost_car.v_new = 0;
-//	ghost_car.y_new = 0;
-//	ghost_car.y_new = 0;
-//	grid[row_east][col_east].car_id = ghost_car;
-//	grid[row_west][row_west].car_id = ghost_car;
-//	return ghost_car;
-//}
+void ghost(cell ** grid, int midRow, int midCol, char direction, int numcars){
+
+	//EAST
+	int x_loc_E = midCol - 2;
+	int y_loc_E = midRow - 1;
+
+	//WEST
+	int x_loc_W = midCol + 2;
+	int y_loc_W = midRow + 1;
+
+	//NORTH
+	int x_loc_N = midCol - 1;
+	int y_loc_N = midRow - 2;
+
+	//SOUTH
+	int x_loc_S = midCol + 1;
+	int y_loc_S = midRow + 2;
 
 
-//ALLOCATE MEMORY FOR CAR STRUCTURE?
-void malloc_carstruct(car c){
-	//Allocate memory for car structure
-	car* car_m;
-	car_m = (struct car*)malloc(sizeof(car));
-	if(car_m == NULL){
-		printf("Memory Allocation Failed");
+	if((direction == EAST) || (direction == WEST)){
+		grid[x_loc_E][y_loc_E].car_id = numcars + 1;
+		grid[x_loc_W][y_loc_W].car_id = numcars + 1;
 	}
+
+	else if((direction == NORTH) || (direction == SOUTH)){
+		grid[x_loc_N][y_loc_N].car_id = numcars + 1;
+		grid[x_loc_S][y_loc_S].car_id = numcars + 1;
+	}
+
+	//return id;
 }
+
+/*
+ * if light = red
+ * generate ghost car
+ *
+ *
+ */
 
 
 /*
- * FUNCTIONS
+ * Sandesh's Function -----------------------------------------------
  */
 
 
@@ -831,10 +822,10 @@ void free_matrix(int n1, int n2, int **a) {
 						init_car.id = activeCarListCounter; //this should now be a unique id
 						init_car.x_old = col;
 						init_car.y_old = row;
-						init_car.x_new = -1;
-						init_car.y_new = -1;
+						init_car.x_new = col;
+						init_car.y_new = row;
 						init_car.v_old = urand(1,5); //random velocity between 1 and 5
-						init_car.v_new = -1;
+						init_car.v_new = init_car.v_old;
 
 						//add init car to active car list
 						activeCarList[activeCarListCounter] = init_car;
