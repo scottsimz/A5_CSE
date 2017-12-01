@@ -54,14 +54,16 @@
 #define SPAWN_ENTRY 'I'
 //---------------------------------------------------
 // car structure stores variables of motion
-typedef struct car{
-	//int active; // true=1, false=0
-	int id; // index in car array
-	int speed; // speed of car
-	int x; // x-position of car
-	int y; // y-position of car
-	char direction; // will be either 'N','S','E','W'
-}car;
+typedef struct car {
+	char map_elem; //Car direction
+	int id; //Car ID
+	int x_old;  //old x position
+	int y_old;  //old y position
+	int v_old;  //old velocity
+	int x_new;  //new x position
+	int y_new;  //new y position
+	int v_new;  //new velocity
+} car;
 
 // spawner structure for cars entering the map from the edges
 typedef struct spawner{
@@ -73,7 +75,7 @@ typedef struct spawner{
 
 // cell structure of map
 typedef struct cell{
-	char element;
+	char map_elem;
 	int car_id;
 }cell;
 
@@ -96,10 +98,14 @@ typedef struct trafficLight{
 
 //--------------------------------------------------
 // FUNCTIONS TO BE SHARED
-void random_fill(cell** grid,double p, car* carlist);
+void random_fill(cell** grid,int gridHeight,int gridWidth,double p, car* activeCarList);
 cell** init_grid(trafficLight* traffic_lights_list, int* max_cars);
 void free_grid(int n1, int n2, cell **a);
 void update_lights(trafficLight* lights);
-
+void print_elements(int n1, int n2, cell **a);
+void print_car_ids(int n1, int n2, cell **a);
+void ghost(cell ** grid, int midRow, int midCol, char direction, trafficLight *color);
+int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, char direction);
+car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList);
 //--------------------------------------------------
 #endif /* TRAFFIC_H_ */
