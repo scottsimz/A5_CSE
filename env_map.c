@@ -15,17 +15,14 @@
 	#define TRAFFIC_LIGHT 'T'
 	#define GHOST 'G'
 	#define SPAWN_ENTRY 'I'
-
 //for the trafficLights
 	#define GREEN 1
 	#define YELLOW 0
 	#define RED -1
-
 //define the number of timesteps for which each traffic light color stays
 	int n_red = 5;
 	int n_yellow = 3;
 	int n_green = 10;
-
 //define a car struct
 	typedef struct car {
 		int id; //Car ID
@@ -36,14 +33,11 @@
 	    int y_new;  //new y position
 	    int v_new;  //new velocity
 	} car;
-
-
 //define a cell structure for grid elements
 	typedef struct cell {
 		int element;
 		int car_id;
 	} cell;
-
 //define a traffic light structure
 	typedef struct trafficLight {
 		int id;
@@ -60,17 +54,17 @@
 
 //Matrix Prototypes
 	cell **malloc_grid(int n1, int n2);
-	void free_grid(int n1, int n2, cell **a);
-	//print functions print to screen
-	void print_elements(int n1, int n2, cell **a);
-	void print_velocities(int n1, int n2, cell **a);
-	void print_car_ids(int n1, int n2, cell **a);
+//	void free_grid(int n1, int n2, cell **a);
 
-	
+	//print functions print to screen
+//	void print_elements(int n1, int n2, cell **a);
+	void print_velocities(int n1, int n2, cell **a);
+//	void print_car_ids(int n1, int n2, cell **a);
+
 //Grid Initialization Functions
-	cell** init_grid(trafficLight* traffic_lights_list,int* max_cars);
+//	cell** init_grid(trafficLight* traffic_lights_list,int* max_cars);
 	void fill_intersection(cell** grid, int midRow,int midCol, int* max_cars);
-	void random_fill(cell** grid,double p, car* carlist);
+//	void random_fill(cell** grid,int gridHeight,int gridWidth,double p, car* activeCarList){
 
 //Active Car LENGTHist/Results Functions
 	void grid_snapshot(cell** grid,double timeStamp,car* active_car_list,FILE *file);
@@ -87,79 +81,64 @@
 	double uniform(void);
 	double urand(int LowerLimit,int UpperLimit);
 
+
+
 //=======================================================================================================
 //The main function
 /***
 int main(){
-
 	//Set seed rand() for random grid
 	srand(time(NULL));
-
 	int L = 2; //length of a road segment
 	int n_hor = 1; //number of horizontal blocks
 	int n_vert = 1; //number of vertical blocks
-
 	int gridHeight = NUM_LIGHTS_VERT * (2*LENGTH + 3); //no of rows
 	int gridWidth = NUM_LIGHTS_HOR * (2*LENGTH + 3); //no of columns
-
 	//reserve memory for the traffic lights list
 	int num_trafficLights = NUM_LIGHTS_HOR*NUM_LIGHTS_VERT;
 	trafficLight* traffic_lights_list = (trafficLight*)malloc(num_trafficLights*sizeof(trafficLight));
-
 	//define max_cars
 	int max_cars = 0;
-
 	//Create the grid + update the traffic_lights_list
 	cell** grid = init_grid(traffic_lights_list,&max_cars);
-
 	printf("Max Cars: %d",max_cars);
-
 	//display the grid on screen
 	printf("\nPrinting the grid:\n");
 	print_elements(grid);
-
 	// //create an initial active car list
 	int n_cars = 10;
 	car* carlist = (car*)malloc(max_cars * sizeof(car));
-
-
 	// Fill up the grid randomly with cars
 	double p = 0.3; //prob a cell has a car
 	random_fill(grid,p,carlist);
-
 	//display the car IDs on screen
 	printf("\nPrinting the grid of car ID's\n");
 	print_car_ids(grid);
-
 	//print the active car list
 	printf("\nPrinting the active car list\n");
 	for(int i = 0; i < max_cars; i++){
 		printf("%d,",carlist[i].id);
 	}
-	printf("\n");	
-
+	printf("\n");
 	// Test out the traffic_lights_list
 	printf("\nPrinting the positions of all traffic lights:\n");
 	printf("  (id,x,y)\n");
 	for(int i = 0; i < num_trafficLights; i++){
-		// printf("traffic_lights_list[%d].id = %d\n",i,traffic_lights_list[i].id);	
+		// printf("traffic_lights_list[%d].id = %d\n",i,traffic_lights_list[i].id);
 		// printf("traffic_lights_list[%d].x = %d\n",i,traffic_lights_list[i].x);
 		// printf("traffic_lights_list[%d].y = %d\n",i,traffic_lights_list[i].y);
 		printf("  %d,%d,%d\n",traffic_lights_list[i].id,traffic_lights_list[i].x,traffic_lights_list[i].y);
-		// printf("--\n");	
+		// printf("--\n");
 	}
-
-
 	// Test the update_trafficLight() function
 	trafficLight light = traffic_lights_list[0]; //Pick the 0th traffic light
 	int del_t = n_red + n_yellow + n_green; //the period for a traffic light cycle
-
 	//call update_trafficLight on a trafficLight at incremental timesteps
 	printf("\nPrinting the North-South light for the %d-th traffic light at different timesteps:\n",0);
 	printf("  TimeStep,NorthSouthLight\n");
 	for(int i = 0; i < del_t*3; i++){ //run for 3 lightCycles
 		update_trafficLight(&light,i,n_red,n_yellow,n_green);
-		printf("  %d,%d\n",i,light.northSouthLight); //print out the timestep,color-of-the-north-traffic-light		
+		printf("  %d,%d\n",i,light.northSouthLight); //print out the timestep,color-of-the-north-traffic-light
 	}
 ***/
 
@@ -167,30 +146,23 @@ int main(){
  	 //display the velocities on screen
 	printf("\nPrinting the grid of car velocities\n");
 	print_velocities(grid);
-
-
 	//Set up the snapshots results file
 	FILE *resultsFile = fopen("snapshots.txt","w");
 	if (resultsFile == NULL){printf("Error opening snapshots.txt file!\n");exit(1);};
 	fprint_elements(grid,resultsFile); //write the grid to file
-
 	//Get active_car_list and also save car pos and velocities to file
 	car* active_car_list = (car*)malloc(gridWidth*gridHeight*sizeof(car)); //This needs to be global shared list
-
 	//Uncomment to test the
 	grid_snapshot(grid,GRID_HEIGHT,GRID_WIDTH,1,active_car_list,resultsFile); //The 2nd to last parameter is timestamp
 	grid_snapshot(grid,GRID_HEIGHT,GRID_WIDTH,2,active_car_list,resultsFile); //Example of the function being called again at timestep=2
 	grid_snapshot(grid,GRID_HEIGHT,GRID_WIDTH,3,active_car_list,resultsFile); //Example of the function being called again at timestep=3
-
 	//End writing to the results file and close connection
 	fprintf(resultsFile,"//END:SNAPSHOTS//");
 	fclose(resultsFile);
-
 	//free memory reserved for grid
 	//Need to adjust this. The grid will be used by other programs so shouldn't be freed here.
 	free_int_matrix(NUM_LIGHTS_HOR*NUM_LIGHTS_VERT,2,traffic_lights_list);
 	free_grid(GRID_HEIGHT,GRID_WIDTH,grid);
-
 }
 ***********************************************/
 
@@ -222,7 +194,7 @@ int main(){
 
 		}
 	}
-	
+
 
 //===========================================================================================================
 	//Matrix Functions
@@ -305,7 +277,7 @@ int main(){
 				exit(1);
 			}
 
-		}				
+		}
 
 		//print a matrix to the console. Useful for debugging
 		//input size of matrix (n1 and n2), and pointer to the matrix
@@ -317,9 +289,9 @@ int main(){
 				for(int i=0;i<n1;i++){
 					for(int j=0;j<n2;j++){
 						if(j==n2-1){
-							printf("%c",a[i][j].element); //Doesn't add a comma for the last column
+							printf("%c",a[i][j].map_elem); //Doesn't add a comma for the last column
 						} else {
-							printf("%c",a[i][j].element); //Adds a comma after every element to separate them
+							printf("%c",a[i][j].map_elem); //Adds a comma after every element to separate them
 						}
 
 					}
@@ -379,12 +351,12 @@ int main(){
 			}
 		}
 //=======================================================================================================
-	//Grid Initialization Functions	
+	//Grid Initialization Functions
 	//---------------------------------------------------------------------------------------------------
 	cell** init_grid(trafficLight* traffic_lights_list, int* max_cars){
 
 		// printf("Grid Height = %d, Grid Width = %d\n",GRID_WIDTH,GRID_HEIGHT);
-		
+
 		// //Reserve space for full grid
 		cell** grid = malloc_grid(GRID_HEIGHT,GRID_WIDTH);
 
@@ -393,11 +365,11 @@ int main(){
 		//Intially fill up grid with EMPTYs
 		for (int row = 0; row < GRID_HEIGHT; row++){
 			for(int col = 0; col < GRID_WIDTH; col++){
-				grid[row][col].element = EMPTY;
+				grid[row][col].map_elem = EMPTY;
 				grid[row][col].car_id = -1; //(SCOTT) initializes map with no cars*****************************
 			}
 		}
-		
+
 		// //Add intersections
 
 		int intersectionCount = 0;
@@ -408,17 +380,17 @@ int main(){
 				for(int col_block = 0; col_block < GRID_WIDTH; col_block++){
 					if(col_block % (2*LENGTH + 3) == 0){
 						// grid[row_block][col_block] = 'H';
-						
+
 						int midRow = row_block + (LENGTH+1);
 						int midCol = col_block + (LENGTH+1);
 
 						fill_intersection(grid,midRow,midCol,max_cars);
 
 						//Add the spawn entry points
-						grid[0][midCol -1].element = SPAWN_ENTRY; //Northbound Spawn
-						grid[GRID_HEIGHT-1][midCol + 1].element = SPAWN_ENTRY; //Southbound Spawn
-						grid[midRow+1][0].element = SPAWN_ENTRY; //Southbound Spawn
-						grid[midRow-1][GRID_WIDTH-1].element = SPAWN_ENTRY; //Southbound Spawn
+						grid[0][midCol -1].map_elem = SPAWN_ENTRY; //Northbound Spawn
+						grid[GRID_HEIGHT-1][midCol + 1].map_elem = SPAWN_ENTRY; //Southbound Spawn
+						grid[midRow+1][0].map_elem = SPAWN_ENTRY; //Southbound Spawn
+						grid[midRow-1][GRID_WIDTH-1].map_elem = SPAWN_ENTRY; //Southbound Spawn
 
 						//Add a traffic light to the traffic_lights_list
 						traffic_lights_list[intersectionCount].id = intersectionCount;
@@ -427,11 +399,11 @@ int main(){
 						traffic_lights_list[intersectionCount].northSouthLight = RED; //y-coordinate
 						//above might be suspect to seg-faults
 						intersectionCount++;
-													
+
 					}
-				}			
-			}	
-		}	
+				}
+			}
+		}
 
 		// // //Return the grid matrix as output
 		return grid;
@@ -446,33 +418,33 @@ int main(){
 
 				if (abs(row - midRow) == 2) //Juntion space needed for ghost cars
 				{
-					grid[row][midCol - 1].element = GHOST;
-					grid[row][midCol + 1].element = GHOST;
-					grid[row][midCol].element = MIDDLE_LANE;
+					grid[row][midCol - 1].map_elem = GHOST;
+					grid[row][midCol + 1].map_elem = GHOST;
+					grid[row][midCol].map_elem = MIDDLE_LANE;
 					*max_cars += 2;
 					// printf("Add roadcoutner\n");
 
 				} else{
-					grid[row][midCol - 1].element = SOUTH;
-					grid[row][midCol + 1].element = NORTH;
+					grid[row][midCol - 1].map_elem = SOUTH;
+					grid[row][midCol + 1].map_elem = NORTH;
 					*max_cars += 2;
-					grid[row][midCol].element = MIDDLE_LANE;
+					grid[row][midCol].map_elem = MIDDLE_LANE;
 				}
-				
+
 		}
 		//---------------------------------------------------------------------------------------------------
 		//Create the East-West Lanes
 		for(int col = midCol - (LENGTH+1);col <= midCol + (LENGTH+1);col++){
 				if (abs(col - midCol) == 2) //Juntion space needed for ghost cars
 				{
-					grid[midRow - 1][col].element = GHOST;
-					grid[midRow + 1][col].element = GHOST;
-					grid[midRow][col].element = MIDDLE_LANE;
+					grid[midRow - 1][col].map_elem = GHOST;
+					grid[midRow + 1][col].map_elem = GHOST;
+					grid[midRow][col].map_elem = MIDDLE_LANE;
 					*max_cars += 2;
 				} else {
-					grid[midRow - 1][col].element = WEST;
-					grid[midRow + 1][col].element = EAST;
-					grid[midRow][col].element = MIDDLE_LANE;
+					grid[midRow - 1][col].map_elem = WEST;
+					grid[midRow + 1][col].map_elem = EAST;
+					grid[midRow][col].map_elem = MIDDLE_LANE;
 					*max_cars += 2;
 				}
 		}
@@ -480,7 +452,7 @@ int main(){
 		//fill up the junctions
 		for(int row = midRow - 1; row <= midRow + 1; row++){
 			for(int col = midCol -1; col <= midCol + 1; col++){
-				grid[row][col].element = JUNCTION;
+				grid[row][col].map_elem = JUNCTION;
 				*max_cars -= 1; //We will still have 2 extra cars in max_cars
 			}
 		}
@@ -488,48 +460,79 @@ int main(){
 		// *max_cars -= 2;
 
 		//Add the traffic light at the middle
-		grid[midRow][midCol].element = TRAFFIC_LIGHT;
+		grid[midRow][midCol].map_elem = TRAFFIC_LIGHT;
 		*max_cars -= 1;
 
-	}		
+	}
 	//---------------------------------------------------------------------------------------------------
 	//randomly fill up the grid  with some cars
-	void random_fill(cell** grid,double p, car* carlist){
-		//randomly fills the grid with a few cars
+	void random_fill(cell** grid,int gridHeight,int gridWidth,double p, car* activeCarList){
+			//randomly fills the grid with a few cars
 
-		int car_index = 0;
-		char element; //(SCOTT)*****************************
-		//This function needs to create a random active car list
+			int activeCarListCounter = 0;
 
-		for(int row = 0; row < GRID_HEIGHT; row++){
-			for(int col = 0; col < GRID_WIDTH; col++){
+			//This function needs to create a random active car list
 
-				element = grid[row][col].element; // (SCOTT)*****************************
+			for(int row = 0; row < gridHeight; row++){
+				for(int col = 0; col < gridWidth; col++){
+					if ((grid[row][col].map_elem == NORTH) |
+						(grid[row][col].map_elem == SOUTH) |
+						(grid[row][col].map_elem == EAST) |
+						(grid[row][col].map_elem == WEST)) {
+					//	(grid[row][col].map_elem == GHOST)){
 
-				if (element == NORTH |
-					element == SOUTH |
-					element == EAST |
-					element == WEST){
-					
-					if(uniform() < p){
+						if(uniform() < p){
 
-						//create an initial car element
-						carlist[car_index].id = car_index; //this should now be a unique id
-						carlist[car_index].x = col;
-						carlist[car_index].y = row;
-						carlist[car_index].speed = urand(1,5); //random velocity between 1 and 5
-						carlist[car_index].direction = element; //(SCOTT) direction of car is same as road*****************************
+							//create an initial car element
+							car init_car;
+						//	init_car.map_elem =;
 
-						//Assign the car to a cell on the grid
-						grid[row][col].car_id = car_index;
-						
-						//Increment counter (index)
-						car_index ++;
+							init_car.map_elem = grid[row][col].map_elem;
+							init_car.id = activeCarListCounter; //this should now be a unique id
+							init_car.x_old = col;
+							init_car.y_old = row;
+							init_car.x_new = col;
+							init_car.y_new = row;
+							init_car.v_old = urand(1,5); //random velocity between 1 and 5
+							init_car.v_new = init_car.v_old;
+
+							//add init car to active car list
+							activeCarList[activeCarListCounter] = init_car;
+
+							//Assign the car to a cell on the grid
+							grid[row][col].car_id = init_car.id;
+
+							//Increment counter
+							activeCarListCounter ++;
+
+						}
+						else {
+							// car empty_car;
+							car empty_car;
+							empty_car.id = -1;
+							empty_car.x_old = -1;
+							empty_car.y_old = -1;
+							empty_car.x_new = -1;
+							empty_car.y_new = -1;
+							empty_car.v_old = -1;
+							empty_car.v_new = -1;
+
+							//add empty car to active car list
+							activeCarList[activeCarListCounter] = empty_car;
+
+							//Add info to the grid
+							grid[row][col].car_id = -1; //No car in that cell
+
+							//Increment counter
+							activeCarListCounter++;
+						}
+
 					}
-				} // (SCOTT) removed ELSE condition because all grid.car_id's were initialized to -1 in a previous function*****************************
+
+				}
 			}
+
 		}
-	}
 	//---------------------------------------------------------------------------------------------------
 	//Grid Update/Results Functions
 
@@ -555,12 +558,12 @@ int main(){
 	// 						active_car_counter++;
 	// 					}
 
-	// 			}			
+	// 			}
 
 	// 		}
 	// 	}
 
-	// 	// printf("\nNumber of active cars: %d\n",active_car_counter);	
+	// 	// printf("\nNumber of active cars: %d\n",active_car_counter);
 
 	// 	//create an output file that stores the snapshot
 	// 	save_results(file,grid,GRID_HEIGHT,GRID_WIDTH,timeStamp);
@@ -587,14 +590,14 @@ int main(){
 	void fprint_elements(int n1, int n2, cell **a,FILE* f) {
 
 		if(n1 > 0 && n2 > 0 && a != NULL){ //Checking for invalid inputs
-		
+
 			fprintf(f,"//BEGIN:MAP//\n");
 			for(int i=0;i<n1;i++){
 				for(int j=0;j<n2;j++){
 					if(j==n2-1){
-						fprintf(f,"%c",a[i][j].element); //Doesn't add a comma for the last column
+						fprintf(f,"%c",a[i][j].map_elem); //Doesn't add a comma for the last column
 					} else {
-						fprintf(f,"%c,",a[i][j].element); //Adds a comma after every element to separate them
+						fprintf(f,"%c,",a[i][j].map_elem); //Adds a comma after every element to separate them
 					}
 
 				}
@@ -668,11 +671,11 @@ int main(){
 		double interval = UpperLimit - LowerLimit;
 		double unirand = (ratio * interval);
 		return unirand;
-	}	
+	}
 
 
 // /////////////////////////////////////////////////////////////////////////////////
-// // WAITLIST FUNCTIONS 
+// // WAITLIST FUNCTIONS
 // /////////////////////////////////////////////////////////////////////////////////
 // //Create waitlist
 // carlist* create_list(int size) {
@@ -684,7 +687,7 @@ int main(){
 //     }
 
 //     // Allocate space for the array in the WaitList struct
-//     // Note that this space is different from that already 
+//     // Note that this space is different from that already
 //     // allocated to the structure.
 //     W->elements = malloc( sizeof(car) * size);
 //     if (W->elements == NULL) {
@@ -703,18 +706,18 @@ int main(){
 //         printf("Could not add to waitlist. No wait list found!");
 //         return 1;
 //     }
-        
+
 //     // check if list is full
 //     if (aList->counter == aList->MAX_SIZE){
 //         //Double the size allocated to the list
 //         aList->elements = realloc(aList->elements,aList->MAX_SIZE*2);
 //     }
-    
+
 //     // add an element to the end of the list
 //     // and increment the counter
 //     aList->elements[aList->counter] = *element;
 //     aList->counter++;
-    
+
 //     return 0;
 // }
 
@@ -748,12 +751,12 @@ int main(){
 //     printf("alist is not null\n");
 
 //     // first free the dynamically allocated array
-//     if (aList->elements != NULL) 
+//     if (aList->elements != NULL)
 //         free(aList->elements);
-	
+
 // 	printf("Now let's free alist\n");
 
 //     // now free the pointer to the struct
-//     free(aList);    
+//     free(aList);
 //     return 0;
 // }
