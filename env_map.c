@@ -75,7 +75,7 @@
 	void fprint_car_ids(int n1, int n2, cell **a,FILE* f);
 
 //Traffic Light Functions
-	void update_lights(trafficLight* lights);
+	int update_lights(trafficLight* lights);
 
 //Other Helper Functions
 	double uniform(void);
@@ -170,7 +170,13 @@ int main(){
 
 	//---------------------------------------------------------------------------------------------------
 	//Update Traffic Lights
-	void update_lights(trafficLight* lights){
+	int update_lights(trafficLight* lights){
+
+		if(lights == NULL)
+		{
+			printf("Error - update_lights(): arg 'lights[]' is NULL\n");
+			return 1;
+		}
 
 		for(int i=0; i<NUM_LIGHTS; i++)
 		{
@@ -193,6 +199,7 @@ int main(){
 			}
 
 		}
+		return 0;
 	}
 
 
@@ -487,7 +494,7 @@ int main(){
 							car init_car;
 						//	init_car.map_elem =;
 
-							init_car.map_elem = grid[row][col].map_elem;
+							init_car.direction = grid[row][col].map_elem;
 							init_car.id = activeCarListCounter; //this should now be a unique id
 							init_car.x_old = col;
 							init_car.y_old = row;
@@ -506,7 +513,7 @@ int main(){
 							activeCarListCounter ++;
 
 						}
-						else {
+						/* else {
 							// car empty_car;
 							car empty_car;
 							empty_car.id = -1;
@@ -525,7 +532,7 @@ int main(){
 
 							//Increment counter
 							activeCarListCounter++;
-						}
+						}*/
 
 					}
 

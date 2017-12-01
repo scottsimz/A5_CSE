@@ -12,7 +12,11 @@
 #ifndef TRAFFIC_H_
 #define TRAFFIC_H_
 //--------------------------------------------------
+#define SIM_TIME 4 //
+//--------------------------------------------------
 #define V_MAX 5 // maximum speed
+#define PROB_SLOW 0.2//
+#define DENSITY 0.3 // initial density of cars on map
 //--------------------------------------------------
 #define S_SPAWN_MIN 1
 #define S_SPAWN_MAX 6
@@ -23,7 +27,7 @@
 #define W_SPAWN_MIN 1
 #define W_SPAWN_MAX 6
 //---------------------------------------------------
-#define LENGTH 3 //length of a road segment
+#define LENGTH 15 //length of a road segment
 #define NUM_LIGHTS_HOR 1 //number of horizontal blocks
 #define NUM_LIGHTS_VERT 1 //number of vertical blocks
 //---------------------------------------------------
@@ -41,6 +45,10 @@
 #define GREEN 1
 #define YELLOW 0
 #define RED -1
+#define TIME_GREEN 12
+#define TIME_YELLOW 3
+#define TIME_RED 6
+#define TIME_SHIFT 0
 //---------------------------------------------------
 #define EMPTY ' '
 #define SOUTH 'S'
@@ -53,9 +61,12 @@
 #define GHOST 'G'
 #define SPAWN_ENTRY 'I'
 //---------------------------------------------------
+#define MAX(a,b) ( ((a)>(b)) ? (a):(b) )
+#define MIN(a,b) ( ((a)<(b)) ? (a):(b) )
+//---------------------------------------------------
 // car structure stores variables of motion
 typedef struct car {
-	char map_elem; //Car direction
+	char direction; //Car direction
 	int id; //Car ID
 	int x_old;  //old x position
 	int y_old;  //old y position
@@ -101,11 +112,13 @@ typedef struct trafficLight{
 void random_fill(cell** grid,int gridHeight,int gridWidth,double p, car* activeCarList);
 cell** init_grid(trafficLight* traffic_lights_list, int* max_cars);
 void free_grid(int n1, int n2, cell **a);
-void update_lights(trafficLight* lights);
+int update_lights(trafficLight* lights);
 void print_elements(int n1, int n2, cell **a);
 void print_car_ids(int n1, int n2, cell **a);
 void ghost(cell ** grid, int midRow, int midCol, char direction, trafficLight *color);
 int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, char direction);
 car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList);
+//int update_cars(int max_cars, car* cars, cell** grid);
+double uniform(void);
 //--------------------------------------------------
 #endif /* TRAFFIC_H_ */
