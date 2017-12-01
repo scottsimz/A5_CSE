@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+//#include "traffic.h"
 
 
 //for the env_map
@@ -54,10 +55,14 @@
 	} cell;
 
 //define a traffic light structure
-	typedef struct trafficLight {
+	typedef struct trafficLight{
 		int id;
 		int x;
 		int y;
+		int timer; //(SCOTT)
+		int time_red; //(SCOTT)
+		int time_green; //(SCOTT)
+		int time_yellow; //(SCOTT)
 		int northSouthLight; //the color of the North and South facing lights
 		//eastWestLight = -1*northSouthLight
 	} trafficLight;
@@ -94,7 +99,7 @@
 
 	int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, char direction);
 	int update_velocity(struct car *c, cell** grid, int empty);
-	void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList);
+	car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList);
 
 //The main function
 int main(){
@@ -157,8 +162,9 @@ int main(){
 			printf("-----------------------\n");
 			printf("x is %d\n",x_pos);
 			printf("y is %d\n",y_pos);
+			printf("The Car ID is %d \n",index);
 			char direction = SOUTH;//activeCarList[i].map_elem;
-			printf("GOING %c\n ",direction);
+			printf("Direction is  %c\n ",direction);
 
 			//CHECK SPACES
 			int empty = emptycellcount(grid, gridWidth, gridHeight, x_pos, y_pos, direction);
@@ -192,76 +198,64 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 	int emptyspaces=0;
 
 	if(direction == EAST){
-		for(int x = i; x < gridWidth; x++){
-			for(int y = j; y < j+1; y++){
-				if(grid[i+1][j].car_id == -1){
-					printf("emptyspaces %d\n", emptyspaces);
-					emptyspaces++;
-				}
-				else{
-					//printf("in else break\n");
-					return emptyspaces;
-				}//end else
-			}//end for i
-		}//end if east
+		int x = j;
+		for(int y = i + 1; y < gridWidth; y++){
+			if(grid[x][y].car_id == -1){
+				emptyspaces++;
+			}
+			else{
+				break;
+			}
+		}
 	}
-
 
 	else if(direction == WEST){
-		for(int x = gridWidth-1; x>-1; x--){
-			for(int y = j; y < j+1; y++){
-				if(grid[i-1][j].car_id == -1){
-					emptyspaces++;
-				}
-				else{
-					break;
-				}//end else
-			}//end for i
-		}//return emptyspaces;
-	}//end if west
+		int x = j;
+		for(int y = gridWidth-1; y>-1; y--){
+			if(grid[x][y].car_id == -1){
+				emptyspaces++;
+			}
+			else{
+				break;
+			}
+		}
+	}
 
 	else if(direction == NORTH){
-		for(int x = i; x < i+1; x++){
-			for(int y = gridHeight; y > -1; y--){
-				if(grid[i][j-1].car_id == -1){
-					emptyspaces++;
-				}
-				else{
-					break;
-				}//end else
-			}//end for i
-		}//return emptyspaces;
-	}//end if west
+		int y = i;
+		for(int x=j+1; x < gridHeight; x--){
+			if(grid[x][y].car_id == -1){
+				emptyspaces++;
+			}
+			else{
+				break;
+			}
+		}
+	}
 
 	else if(direction == SOUTH){
-		//printf("In south direction else statement\n");
-		for(int x = i; x < i+1; x++){
-			for(int y = j; y < gridHeight; y++){
-				//printf("grid x %d\n ", activeCarList[x][y]);
-				if(grid[i][j+1].car_id == -1){
-					//printf("emptyspaces %d\n", emptyspaces);
-					emptyspaces++;
-					//printf("grid id  (%d, %d) %d\n", x,y ,grid[i][j+1].car_id);
-				}
-				else{
-					//printf("in else statement");
-					break;
-				}//end else
-			}//end for i
-		}//end if east
+		int y = i;
+		for(int x = j + 1; x < gridHeight; x++){
+			if(grid[x][y].car_id == -1){
+				emptyspaces++;
+				printf("\n|| The next , y location is (%d,%d) ", x,y);
+				printf("# emptyspaces %d && ", emptyspaces);
+				printf("Car ID is %d\n ",grid[x][y].car_id);
+			}
+			else{
+				break;
+			}
+		}
 	}
 	return emptyspaces;
-}//end function
+}
 
 
 //UPDATE VELOCITIES
 int update_velocity(struct car *c, cell** grid, int empty){
 
+	//Generate randum number
 	double rn = (double)rand() / RAND_MAX;
-
-	//Set current value velocity as "old velocity"
-	//printf("V NEW %d\n", c->v_new);
-	//c->v_new = c->v_old;
 
 	//Create a temporary integer for the current velocity
 	int v_temp = c->v_new;
@@ -272,11 +266,11 @@ int update_velocity(struct car *c, cell** grid, int empty){
 		v_temp ++;
 	}
 
-	//NS Model says d-1, but what if there are 0 spaces?
-	//It should just be min(d,v)?
+	//Avoid collisions
 	if(empty < v_temp){
 		v_temp = empty;
 	}
+
 	printf("V temp is --- %d\n",v_temp);
 	//Randomization step. If random number less than prob, decrement vtemp
 	if(rn < p){
@@ -290,7 +284,7 @@ int update_velocity(struct car *c, cell** grid, int empty){
 
 
 
-void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList){
+car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList){
 	//for(int i = 0; i < ncars; i++){
 
 		//CHANGE: GET DIRECTION FROM CAR STRUCT INSTEAD OF GRID
@@ -352,7 +346,7 @@ void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			printf("x old %d , x new %d\n", c->x_old, c->x_new);
 
 			//Old spot has car ID of -1 (no car)
-			grid[c->x_old][c->y_old].car_id = -1;
+			//grid[c->x_old][c->y_old].car_id = -1;
 
 		}//end if west
 
@@ -377,7 +371,7 @@ void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			printf("x old %d , x new %d\n", c->x_old, c->x_new);
 
 			//Old spot has car ID of 0 (no car)
-			grid[c->x_old][c->y_old].car_id = -1;
+			//grid[c->x_old][c->y_old].car_id = -1;
 
 		}//end if north
 
@@ -405,10 +399,11 @@ void update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			printf("x old %d , x new %d\n", c->x_old, c->x_new);
 
 			//Old spot has car ID of 0 (no car)
-			grid[c->x_old][c->y_old].car_id = -1;
+			//grid[c->x_old][c->y_old].car_id = -1;
 
 		}//end if south
 
+		return c;
 
 }//end update car south function
 
@@ -422,42 +417,41 @@ void ghost(cell ** grid, int midRow, int midCol, char direction, int numcars, tr
 	int light = color->northSouthLight;
 
 	//EAST
-	int x_loc_E = midCol - 2;
-	int y_loc_E = midRow - 1;
+	int x_loc_E = midRow + 1;
+	int y_loc_E = midCol - 2;
 
 	//WEST
-	int x_loc_W = midCol + 2;
-	int y_loc_W = midRow + 1;
+	int x_loc_W = midRow - 1;
+	int y_loc_W = midCol + 2;
 
 	//NORTH
-	int x_loc_N = midCol - 1;
-	int y_loc_N = midRow - 2;
+	int x_loc_N = midRow + 2;
+	int y_loc_N = midCol + 1;
 
 	//SOUTH
-	int x_loc_S = midCol + 1;
-	int y_loc_S = midRow + 2;
+	int x_loc_S = midRow - 2;
+	int y_loc_S = midCol - 1;
 
 
-	if(light == 1 || light == 0){
-		grid[x_loc_E][y_loc_E].car_id = numcars + 1;
-		grid[x_loc_W][y_loc_W].car_id = numcars + 1;
+	//If ns yellow or red
+	if(light == YELLOW || light == RED){
+		grid[x_loc_E][y_loc_E].car_id = -2;
+		grid[x_loc_E][y_loc_E].map_elem = direction;
+
+		grid[x_loc_W][y_loc_W].car_id = -2;
+		grid[x_loc_W][y_loc_W].map_elem = direction;
 	}
 
 	else{
-		grid[x_loc_N][y_loc_N].car_id = numcars + 1;
-		grid[x_loc_S][y_loc_S].car_id = numcars + 1;
+		grid[x_loc_N][y_loc_N].car_id = -2;
+		grid[x_loc_N][y_loc_N].map_elem = direction;
+
+		grid[x_loc_S][y_loc_S].car_id = -2;
+		grid[x_loc_S][y_loc_S].map_elem = direction;
 	}
 
 	//return id;
 }
-
-/*
- * if light = red
- * generate ghost car
- *
- *
- */
-
 
 /*
  * Sandesh's Function -----------------------------------------------
