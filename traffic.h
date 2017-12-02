@@ -12,22 +12,22 @@
 #ifndef TRAFFIC_H_
 #define TRAFFIC_H_
 //--------------------------------------------------
-#define SIM_TIME 12 //
+#define SIM_TIME 1000 //
 //--------------------------------------------------
 #define V_MAX 5 // maximum speed
 #define PROB_SLOW 0.2//
 #define DENSITY 0.3 // initial density of cars on map
 //--------------------------------------------------
-#define S_SPAWN_MIN (SIM_TIME+1)
-#define S_SPAWN_MAX (SIM_TIME+1)
-#define N_SPAWN_MIN (SIM_TIME+1)
-#define N_SPAWN_MAX (SIM_TIME+1)
-#define E_SPAWN_MIN (SIM_TIME+1)
-#define E_SPAWN_MAX (SIM_TIME+1)
-#define W_SPAWN_MIN (SIM_TIME+1)
-#define W_SPAWN_MAX (SIM_TIME+1)
+#define S_SPAWN_MIN 3
+#define S_SPAWN_MAX 10
+#define N_SPAWN_MIN 3// (SIM_TIME+1)
+#define N_SPAWN_MAX 10//(SIM_TIME+1)
+#define E_SPAWN_MIN 3//(SIM_TIME+1)
+#define E_SPAWN_MAX 10//(SIM_TIME+1)
+#define W_SPAWN_MIN 3//(SIM_TIME+1)
+#define W_SPAWN_MAX 10//(SIM_TIME+1)
 //---------------------------------------------------
-#define LENGTH 15 //length of a road segment
+#define LENGTH 30 //length of a road segment
 #define NUM_LIGHTS_HOR 1 //number of horizontal blocks
 #define NUM_LIGHTS_VERT 1 //number of vertical blocks
 //---------------------------------------------------
@@ -45,9 +45,9 @@
 #define GREEN 1
 #define YELLOW 0
 #define RED -1
-#define TIME_GREEN 3
-#define TIME_YELLOW 1
-#define TIME_RED 2
+#define TIME_GREEN 64
+#define TIME_YELLOW 4
+#define TIME_RED 60
 #define TIME_SHIFT 0
 //---------------------------------------------------
 #define EMPTY ' '

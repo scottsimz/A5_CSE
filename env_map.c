@@ -482,13 +482,11 @@ int main(){
 
 			for(int row = 0; row < gridHeight; row++){
 				for(int col = 0; col < gridWidth; col++){
-					// if ((grid[row][col].map_elem == NORTH) |
-					// 	(grid[row][col].map_elem == SOUTH) |
-					// 	(grid[row][col].map_elem == EAST) |
-					// 	(grid[row][col].map_elem == WEST)) {
-
-					if ((grid[row][col].map_elem == EAST) |
+					if ((grid[row][col].map_elem == NORTH) |
+						(grid[row][col].map_elem == SOUTH) |
+						(grid[row][col].map_elem == EAST) |
 						(grid[row][col].map_elem == WEST)) {
+					//	(grid[row][col].map_elem == GHOST)){
 
 						if(uniform() < p){
 
