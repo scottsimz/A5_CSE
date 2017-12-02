@@ -217,7 +217,7 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 
 	if(direction == EAST){
 		int x = j;
-		for(int y = i + 1; y < gridWidth; y++){
+		for(int y = i+1; y < gridWidth; y++){
 			if(grid[x][y].car_id == -1){
 				emptyspaces++;
 			}
@@ -229,7 +229,7 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 
 	else if(direction == WEST){
 		int x = j;
-		for(int y = gridWidth-1; y>-1; y--){
+		for(int y = i-1; y>-1; y--){
 			if(grid[x][y].car_id == -1){
 				emptyspaces++;
 			}
@@ -241,7 +241,7 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 
 	else if(direction == NORTH){
 		int y = i;
-		for(int x=j+1; x < gridHeight; x--){
+		for(int x=j-1; x>-1; x--){
 			if(grid[x][y].car_id == -1){
 				emptyspaces++;
 
@@ -254,7 +254,7 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 
 	else if(direction == SOUTH){
 		int y = i;
-		for(int x = j + 1; x < gridHeight; x++){
+		for(int x = j+1; x<gridHeight; x++){
 			if(grid[x][y].car_id == -1){
 				emptyspaces++;
 				printf("\n|| The next , y location is (%d,%d) ", x,y);
@@ -284,7 +284,7 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 int update_velocity(struct car *c, cell** grid, int empty){
 
 	//Generate randum number
-	double rn = (double)rand() / RAND_MAX;
+	double rn = (double)rand() / (double)RAND_MAX;
 
 	//Create a temporary integer for the current velocity
 	int v_temp = c->v_new;

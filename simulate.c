@@ -65,7 +65,7 @@ int main(void)//(int argc, char *argv[])
 
 	// (2) Initialize Map
 	cell** grid = init_grid(lights,&max_cars);
-	printf("(2) map\n");
+	printf("(2) map (max_cars = %d)\n",max_cars);
 
 	// (3) Initialize Cars stored in one array
 	car cars[max_cars]; // declares array of cars
