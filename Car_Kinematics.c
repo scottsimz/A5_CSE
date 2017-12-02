@@ -44,7 +44,7 @@
 	int num_samples = 200;
 //	int car_count = 0;
 	int numfront = 0;
-	double p_rand = 0.4;
+	double p_rand = 0.2;
 
 //
 ////define a car struct
@@ -302,7 +302,7 @@ int update_velocity(struct car *c, cell** grid, int empty){
 
 	printf("V temp is --- %d\n",v_temp);
 	//Randomization step. If random number less than prob, decrement vtemp
-	if(rn < p_rand){
+	if( (rn < p_rand) && (v_temp > 0) ){
 		printf("YES RANDOMIZATION\n");
 		v_temp --;
 	}
@@ -441,7 +441,7 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 
 
 //GENERATE GHOST CAR FOR RED LIGHTS
-void ghost(cell ** grid, int midRow, int midCol, char direction, trafficLight *color){
+void ghost(cell ** grid, int midRow, int midCol, trafficLight *color){
 
 	int light = color->northSouthLight;
 
@@ -463,20 +463,29 @@ void ghost(cell ** grid, int midRow, int midCol, char direction, trafficLight *c
 
 
 	//If ns yellow or red
-	if(light == YELLOW || light == RED){
+	if(light == YELLOW){
 		grid[x_loc_E][y_loc_E].car_id = -2;
-		grid[x_loc_E][y_loc_E].map_elem = direction;
-
 		grid[x_loc_W][y_loc_W].car_id = -2;
-		grid[x_loc_W][y_loc_W].map_elem = direction;
-	}
 
-	else{
 		grid[x_loc_N][y_loc_N].car_id = -2;
-		grid[x_loc_N][y_loc_N].map_elem = direction;
-
 		grid[x_loc_S][y_loc_S].car_id = -2;
-		grid[x_loc_S][y_loc_S].map_elem = direction;
+	}
+	else if(light == RED){
+		grid[x_loc_N][y_loc_N].car_id = -2;
+		grid[x_loc_S][y_loc_S].car_id = -2;
+
+		grid[x_loc_E][y_loc_E].car_id = -1;
+		grid[x_loc_W][y_loc_W].car_id = -1;
+	}
+	else if(light == GREEN){
+		grid[x_loc_E][y_loc_E].car_id = -2;
+		grid[x_loc_W][y_loc_W].car_id = -2;
+
+		grid[x_loc_N][y_loc_N].car_id = -1;
+		grid[x_loc_S][y_loc_S].car_id = -1;
+	}
+	else{
+		printf("Error - ghost(): invalid color of light");
 	}
 
 	//return id;

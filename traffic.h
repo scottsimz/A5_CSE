@@ -12,20 +12,20 @@
 #ifndef TRAFFIC_H_
 #define TRAFFIC_H_
 //--------------------------------------------------
-#define SIM_TIME 4 //
+#define SIM_TIME 12 //
 //--------------------------------------------------
 #define V_MAX 5 // maximum speed
 #define PROB_SLOW 0.2//
 #define DENSITY 0.3 // initial density of cars on map
 //--------------------------------------------------
-#define S_SPAWN_MIN 1
-#define S_SPAWN_MAX 6
-#define N_SPAWN_MIN 1
-#define N_SPAWN_MAX 6
-#define E_SPAWN_MIN 1
-#define E_SPAWN_MAX 6
-#define W_SPAWN_MIN 1
-#define W_SPAWN_MAX 6
+#define S_SPAWN_MIN (SIM_TIME+1)
+#define S_SPAWN_MAX (SIM_TIME+1)
+#define N_SPAWN_MIN (SIM_TIME+1)
+#define N_SPAWN_MAX (SIM_TIME+1)
+#define E_SPAWN_MIN (SIM_TIME+1)
+#define E_SPAWN_MAX (SIM_TIME+1)
+#define W_SPAWN_MIN (SIM_TIME+1)
+#define W_SPAWN_MAX (SIM_TIME+1)
 //---------------------------------------------------
 #define LENGTH 15 //length of a road segment
 #define NUM_LIGHTS_HOR 1 //number of horizontal blocks
@@ -45,9 +45,9 @@
 #define GREEN 1
 #define YELLOW 0
 #define RED -1
-#define TIME_GREEN 12
-#define TIME_YELLOW 3
-#define TIME_RED 6
+#define TIME_GREEN 3
+#define TIME_YELLOW 1
+#define TIME_RED 2
 #define TIME_SHIFT 0
 //---------------------------------------------------
 #define EMPTY ' '
@@ -115,7 +115,7 @@ void free_grid(int n1, int n2, cell **a);
 int update_lights(trafficLight* lights);
 void print_elements(int n1, int n2, cell **a);
 void print_car_ids(int n1, int n2, cell **a);
-void ghost(cell ** grid, int midRow, int midCol, char direction, trafficLight *color);
+void ghost(cell ** grid, int midRow, int midCol, trafficLight *color);
 int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, char direction);
 car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList);
 //int update_cars(int max_cars, car* cars, cell** grid);

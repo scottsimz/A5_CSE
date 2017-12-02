@@ -54,7 +54,7 @@ int main(void)//(int argc, char *argv[])
 
 	// declared variables
 	int max_cars=0,error_check=0,timer=0;
-	srand( time(NULL) ); // seeds the rand() function
+	srand( 0 ); // seeds the rand() function
 
 	//-------------------------------------------------------------
 	// INITIALIZATIONS
@@ -77,8 +77,10 @@ int main(void)//(int argc, char *argv[])
 	printf("(3) cars\n");
 		error_check = fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output);
 		if( error_check == 1 ) return 1;
+
 	// (4) Initialize Ghost Cars
-	//init_ghosts();
+	int light_row = LENGTH + 1;
+	int light_col =	LENGTH + 1;
 
 	// (5) Initialize Spawners
 	spawner* spawners = init_spawners(grid);
@@ -101,10 +103,11 @@ int main(void)//(int argc, char *argv[])
 	// (1) Update Lights
 		error_check = update_lights(lights);
 		if( error_check == 1 ) return 1;
+		fprintf(output,"NS_LIGHT(%d)\n",lights[0].northSouthLight);
 		printf("(1) update lights\n");
 
 	// (2) Update Ghost Cars
-		//update_ghosts();
+		ghost(grid, light_row, light_col, &lights[0]);
 
 	// (3) Update Cars
 		/*error_check = update_cars( max_cars, cars, grid);
@@ -174,6 +177,7 @@ int main(void)//(int argc, char *argv[])
 		printf("(5) update spawners\n");
 
 	// (6) Print Velocities of cars on map
+		ghost(grid, light_row, light_col, &lights[0]);
 		error_check = fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output);
 		if( error_check == 1 ) return 1;
 
@@ -590,6 +594,10 @@ int fprint_vel(int n1, int n2,int time, car* cars, cell **a,FILE* f)
  			else if( a[i][j].car_id == -1) // if road without car
  			{
  				fprintf(f," %c",a[i][j].map_elem); // print road element
+ 			}
+ 			else if( a[i][j].car_id == -2) // if road has ghost car
+ 			{
+ 				fprintf(f," %c",'&'); // print road element
  			}
  			else // if road with car
  			{
