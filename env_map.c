@@ -4,54 +4,6 @@
 #include <math.h>
 #include "traffic.h"
 
-/****************************
-//for the env_map
-	#define EMPTY ' '
-	#define SOUTH 'S'
-	#define NORTH 'N'
-	#define WEST 'W'
-	#define EAST 'E'
-	#define MIDDLE_LANE 'M'
-	#define JUNCTION 'J'
-	#define TRAFFIC_LIGHT 'T'
-	#define GHOST 'G'
-	#define SPAWN_ENTRY 'I'
-//for the trafficLights
-	#define GREEN 1
-	#define YELLOW 0
-	#define RED -1
-//define the number of timesteps for which each traffic light color stays
-	int n_red = 5;
-	int n_yellow = 3;
-	int n_green = 10;
-//define a car struct
-	typedef struct car {
-		int id; //Car ID
-	    int x_old;  //old x position
-	    int y_old;  //old y position
-	    int v_old;  //old velocity
-	    int x_new;  //new x position
-	    int y_new;  //new y position
-	    int v_new;  //new velocity
-	} car;
-//define a cell structure for grid elements
-	typedef struct cell {
-		int element;
-		int car_id;
-	} cell;
-//define a traffic light structure
-	typedef struct trafficLight {
-		int id;
-		int x;
-		int y;
-		int timer; //(SCOTT)
-		int time_red; //(SCOTT)
-		int time_green; //(SCOTT)
-		int time_yellow; //(SCOTT)
-		int northSouthLight; //the color of the North and South facing lights
-		//eastWestLight = -1*northSouthLight
-	} trafficLight;
-**************************************/
 
 //Matrix Prototypes
 	cell **malloc_grid(int n1, int n2);
@@ -228,30 +180,6 @@
 				exit(1);
 			}
 		}
-
-		// //print velocities of cars on grid
-		// //input size of matrix (n1 and n2), and pointer to the matrix
-		// void print_velocities(int n1, int n2, cell **a) {
-
-		// 	if(n1 > 0 && n2 > 0 && a != NULL){ //Checking for invalid inputs
-
-		// 		printf("\n");
-		// 		for(int i=0;i<n1;i++){
-		// 			for(int j=0;j<n2;j++){
-		// 				if(j==n2-1){
-		// 					printf("%d",a[i][j].car.v_old); //Doesn't add a comma for the last column
-		// 				} else {
-		// 					printf("%d,",a[i][j].car.v_old); //Adds a comma after every element to separate them
-		// 				}
-
-		// 			}
-		// 			printf("\n");//Print the next row on a different line
-		// 		}
-		// 	} else {
-		// 		printf("Invalid input for print_matrix: Make sure n1 > 0 && n2 > 0");
-		// 		exit(1);
-		// 	}
-		// }
 
 		//print ids of cars on grid
 		//input size of matrix (n1 and n2), and pointer to the matrix
@@ -433,27 +361,6 @@
 							activeCarListCounter ++;
 
 						}
-						/* else {
-							// car empty_car;
-							car empty_car;
-							empty_car.id = -1;
-							empty_car.x_old = -1;
-							empty_car.y_old = -1;
-							empty_car.x_new = -1;
-							empty_car.y_new = -1;
-							empty_car.v_old = -1;
-							empty_car.v_new = -1;
-
-							//add empty car to active car list
-							activeCarList[activeCarListCounter] = empty_car;
-
-							//Add info to the grid
-							grid[row][col].car_id = -1; //No car in that cell
-
-							//Increment counter
-							activeCarListCounter++;
-						}*/
-
 					}
 
 				}
@@ -462,55 +369,6 @@
 		}
 	//---------------------------------------------------------------------------------------------------
 	//Grid Update/Results Functions
-
-
-	// //Take a snapshot of the grid
-	// //print out the car id or velocities
-	// //output an array of active cars
-	// //This array will be sent to car_calculations() and
-	// //later to update_grid()
-	// void grid_snapshot(cell** grid,int GRID_HEIGHT,int GRID_WIDTH,double timeStamp,car* active_car_list,FILE *file){
-
-	// 	int active_car_counter = 0; //keep track of how many cars are active
-
-	// 	for(int row = 0; row < GRID_HEIGHT; row++){
-	// 		for(int col = 0; col < GRID_WIDTH; col++){
-	// 			if (grid[row][col].element == NORTH |
-	// 				grid[row][col].element == SOUTH |
-	// 				grid[row][col].element == EAST |
-	// 				grid[row][col].element == WEST){
-
-	// 					if(grid[row][col].car.id != 0){
-	// 						active_car_list[active_car_counter] = grid[row][col].car;
-	// 						active_car_counter++;
-	// 					}
-
-	// 			}
-
-	// 		}
-	// 	}
-
-	// 	// printf("\nNumber of active cars: %d\n",active_car_counter);
-
-	// 	//create an output file that stores the snapshot
-	// 	save_results(file,grid,GRID_HEIGHT,GRID_WIDTH,timeStamp);
-
-	// 	// return active_car_list; //this will have information old_car information
-	// }
-
-	// //Save results to file
-	// void save_results(FILE* f, cell** grid, int GRID_HEIGHT, int GRID_WIDTH, double timeStamp){
-
-	// 	fprintf(f,"//BEGIN:SNAPSHOTS//\n");
-	// 	fprintf(f,"//TIMESTAMP=%f//\n",timeStamp);
-	// 	fprintf(f,"//BEGIN:SNAPSHOTS//\n");
-	// 	fprintf(f,"//BEGIN:CAR_IDS//\n");
-	// 	fprint_car_ids(GRID_HEIGHT,GRID_WIDTH,grid,f);
-	// 	fprintf(f,"//END:CAR_IDS//\n");
-	// 	fprintf(f,"//BEGIN:CAR_VELOCITIES//\n");
-	// 	fprint_velocities(GRID_HEIGHT,GRID_WIDTH,grid,f);
-	// 	fprintf(f,"//END:CAR_VELOCITIES//\n");
-	// }
 
 	//---------------------------------------------------------------------------------------------------
 	//print elements to file
@@ -560,28 +418,6 @@
 		}
 	}
 
-	// //print velocities of cars on grid
-	// //input size of matrix (n1 and n2), and pointer to the matrix
-	// void fprint_velocities(int n1, int n2, cell **a,FILE* f) {
-
-	// 	if(n1 > 0 && n2 > 0 && a != NULL){ //Checking for invalid inputs
-
-	// 		for(int i=0;i<n1;i++){
-	// 			for(int j=0;j<n2;j++){
-	// 				if(j==n2-1){
-	// 					fprintf(f,"%d",a[i][j].car.v_old); //Doesn't add a comma for the last column
-	// 				} else {
-	// 					fprintf(f,"%d,",a[i][j].car.v_old); //Adds a comma after every element to separate them
-	// 				}
-
-	// 			}
-	// 			fprintf(f,"\n");//Print the next row on a different line
-	// 		}
-	// 	} else {
-	// 		fprintf(f,"Invalid input for print_matrix: Make sure n1 > 0 && n2 > 0");
-	// 		exit(1);
-	// 	}
-	// }
 
 //=======================================================================================================
 	//---------------------------------------------------------------------------------------------------

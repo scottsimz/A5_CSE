@@ -159,10 +159,10 @@ int main(void)//(int argc, char *argv[])
 				{
 					grid[y][x].car_id = i ; // add index of car to new map location
 
-					// if(cars[i].x_old == cars[i].x_new ||
-					// 	cars[i].y_old == cars[i].y_new ){ //if the car did not change positions, add to its stop time
-					// 	cars[i].stop_time += 1;
-					// } 
+
+					if(cars[i].v_old == 0 ){ //if the car did not change positions, add to its stop time
+						cars[i].stop_time += 1;
+					} 					
 
 					cars[i].x_old = cars[i].x_new;
 					cars[i].y_old = cars[i].y_new;
@@ -214,11 +214,12 @@ int main(void)//(int argc, char *argv[])
 			totalCars = cars[i].id;
 		}
 	}
-	printf("Total Stop Time: %d\n",totalStopTime);
-	printf("Total Cars: %d\n",totalCars);
+
 
 	int avgStopTime = totalStopTime/totalCars;
-	printf("Avg Stop Time: %d\n",avgStopTime);
+	// printf("Total Stop Time: %d\n",totalStopTime);
+	// printf("Total Cars: %d\n",totalCars);	
+	// printf("Avg Stop Time: %d\n",avgStopTime);
 
 
 	//----------------------------------------------------------------
