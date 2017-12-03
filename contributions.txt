@@ -5,7 +5,7 @@ Sandesh (mainly env_map):
 4. car velocity maps: Record and save velocities of cars at every timestep, and save the flow of traffic along a direction to file. Create visualizations. 
 5. Print functions to save snapshots of the grid at various time steps.
 6. Analysis: Create and analyze velocity maps for various regmines (with and without randomization, with and without traffic lights, etc.)
-
+in
 Scott:
 
 
@@ -13,7 +13,6 @@ Scott:
 Felice:
 1. Was responsible for writing functions that govern the movement of vehicles on the map (calculates new velocity, position, acceleration and deceleration, and stopping at red lights). Wrote ghost car function to generate ghost cars at lights. 
 2. Functions are saved in the car kinematics file, 
-3. Analysis: Verification of car movements, fundamental traffic flow diagram
-
+3. Report and Analysis: Verification of car movements, fundamental traffic flow diagram analysis. 
 
 While the above listed work is what each person was responsible for, we also spent a significant amount of time working with each other to debug and improve each other's codes. 
