@@ -83,90 +83,6 @@
 	double urand(int LowerLimit,int UpperLimit);
 
 
-
-//=======================================================================================================
-//The main function
-/***
-int main(){
-	//Set seed rand() for random grid
-	srand(time(NULL));
-	int L = 2; //length of a road segment
-	int n_hor = 1; //number of horizontal blocks
-	int n_vert = 1; //number of vertical blocks
-	int gridHeight = NUM_LIGHTS_VERT * (2*LENGTH + 3); //no of rows
-	int gridWidth = NUM_LIGHTS_HOR * (2*LENGTH + 3); //no of columns
-	//reserve memory for the traffic lights list
-	int num_trafficLights = NUM_LIGHTS_HOR*NUM_LIGHTS_VERT;
-	trafficLight* traffic_lights_list = (trafficLight*)malloc(num_trafficLights*sizeof(trafficLight));
-	//define max_cars
-	int max_cars = 0;
-	//Create the grid + update the traffic_lights_list
-	cell** grid = init_grid(traffic_lights_list,&max_cars);
-	printf("Max Cars: %d",max_cars);
-	//display the grid on screen
-	printf("\nPrinting the grid:\n");
-	print_elements(grid);
-	// //create an initial active car list
-	int n_cars = 10;
-	car* carlist = (car*)malloc(max_cars * sizeof(car));
-	// Fill up the grid randomly with cars
-	double p = 0.3; //prob a cell has a car
-	random_fill(grid,p,carlist);
-	//display the car IDs on screen
-	printf("\nPrinting the grid of car ID's\n");
-	print_car_ids(grid);
-	//print the active car list
-	printf("\nPrinting the active car list\n");
-	for(int i = 0; i < max_cars; i++){
-		printf("%d,",carlist[i].id);
-	}
-	printf("\n");
-	// Test out the traffic_lights_list
-	printf("\nPrinting the positions of all traffic lights:\n");
-	printf("  (id,x,y)\n");
-	for(int i = 0; i < num_trafficLights; i++){
-		// printf("traffic_lights_list[%d].id = %d\n",i,traffic_lights_list[i].id);
-		// printf("traffic_lights_list[%d].x = %d\n",i,traffic_lights_list[i].x);
-		// printf("traffic_lights_list[%d].y = %d\n",i,traffic_lights_list[i].y);
-		printf("  %d,%d,%d\n",traffic_lights_list[i].id,traffic_lights_list[i].x,traffic_lights_list[i].y);
-		// printf("--\n");
-	}
-	// Test the update_trafficLight() function
-	trafficLight light = traffic_lights_list[0]; //Pick the 0th traffic light
-	int del_t = n_red + n_yellow + n_green; //the period for a traffic light cycle
-	//call update_trafficLight on a trafficLight at incremental timesteps
-	printf("\nPrinting the North-South light for the %d-th traffic light at different timesteps:\n",0);
-	printf("  TimeStep,NorthSouthLight\n");
-	for(int i = 0; i < del_t*3; i++){ //run for 3 lightCycles
-		update_trafficLight(&light,i,n_red,n_yellow,n_green);
-		printf("  %d,%d\n",i,light.northSouthLight); //print out the timestep,color-of-the-north-traffic-light
-	}
-***/
-
-/*********************************************
- 	 //display the velocities on screen
-	printf("\nPrinting the grid of car velocities\n");
-	print_velocities(grid);
-	//Set up the snapshots results file
-	FILE *resultsFile = fopen("snapshots.txt","w");
-	if (resultsFile == NULL){printf("Error opening snapshots.txt file!\n");exit(1);};
-	fprint_elements(grid,resultsFile); //write the grid to file
-	//Get active_car_list and also save car pos and velocities to file
-	car* active_car_list = (car*)malloc(gridWidth*gridHeight*sizeof(car)); //This needs to be global shared list
-	//Uncomment to test the
-	grid_snapshot(grid,GRID_HEIGHT,GRID_WIDTH,1,active_car_list,resultsFile); //The 2nd to last parameter is timestamp
-	grid_snapshot(grid,GRID_HEIGHT,GRID_WIDTH,2,active_car_list,resultsFile); //Example of the function being called again at timestep=2
-	grid_snapshot(grid,GRID_HEIGHT,GRID_WIDTH,3,active_car_list,resultsFile); //Example of the function being called again at timestep=3
-	//End writing to the results file and close connection
-	fprintf(resultsFile,"//END:SNAPSHOTS//");
-	fclose(resultsFile);
-	//free memory reserved for grid
-	//Need to adjust this. The grid will be used by other programs so shouldn't be freed here.
-	free_int_matrix(NUM_LIGHTS_HOR*NUM_LIGHTS_VERT,2,traffic_lights_list);
-	free_grid(GRID_HEIGHT,GRID_WIDTH,grid);
-}
-***********************************************/
-
 //=======================================================================================================
 
 	//---------------------------------------------------------------------------------------------------
@@ -407,7 +323,7 @@ int main(){
 						traffic_lights_list[intersectionCount].x = midRow;  //x-coordinate
 						traffic_lights_list[intersectionCount].y = midCol; //y-coordinate
 						traffic_lights_list[intersectionCount].northSouthLight = RED; //y-coordinate
-						//above might be suspect to seg-faults
+
 						intersectionCount++;
 
 					}
@@ -505,6 +421,7 @@ int main(){
 							init_car.y_new = row;
 							init_car.v_old = urand(1,5); //random velocity between 1 and 5
 							init_car.v_new = init_car.v_old;
+							init_car.stop_time = 0;
 
 							//add init car to active car list
 							activeCarList[activeCarListCounter] = init_car;

@@ -158,6 +158,9 @@ int main(void)//(int argc, char *argv[])
 				if( get_bounds(y,x) == 1) // true=1 if car inside boundaries
 				{
 					grid[y][x].car_id = i ; // add index of car to new map location
+
+					if(cars[i].x_old == cars[i].x_old){cars[i].stop_time += 1;}
+
 					cars[i].x_old = cars[i].x_new;
 					cars[i].y_old = cars[i].y_new;
 					cars[i].v_old = cars[i].v_new;
@@ -192,6 +195,29 @@ int main(void)//(int argc, char *argv[])
 	}
 
 	printf("SIMULATION COMPLETE!\n");
+
+
+	//--------------------------------------------------------------
+	//COMPUTE AVERAGE STOP TIME
+	int totalStopTime = 0;
+	int totalCars = 0;
+	for (int i = 0; i < max_cars; i++){
+
+		// if(cars[i].direction == NORTH ||
+		// 	cars[i].direction == SOUTH)
+		totalStopTime += cars[i].stop_time;
+
+		if(cars[i].id > totalCars){
+			totalCars = cars[i].id;
+		}
+	}
+	printf("Total Stop Time: %d\n",totalStopTime);
+	printf("Total Cars: %d\n",totalCars);
+
+	int avgStopTime = totalStopTime/totalCars;
+	printf("Avg Stop Time: %d\n",avgStopTime);
+
+
 	//----------------------------------------------------------------
 	//FREE ALLOCATED MEMORY
 	free_grid(GRID_HEIGHT,GRID_WIDTH,grid);
@@ -262,6 +288,7 @@ void init_cars(int max_cars, car* cars)
 	car_default.x_old = car_default.x_new = 0;
 	car_default.y_old = car_default.y_new = 0;
 	car_default.direction = EMPTY;
+	car_default.stop_time = 0;
 
 	for(int i=0; i<max_cars; i++)
 	{
@@ -319,6 +346,7 @@ int update_spawners(int max_cars,spawner* spawners,car* cars,cell** grid)
 					cars[i].x_old = cars[i].x_new = x; // spawned at location of spawn-point
 					cars[i].y_old = cars[i].y_new = y;
 					cars[i].direction = spawners[j].direction; // spawned in direction of spawn-point
+					cars[i].stop_time = 0;
 					grid[y][x].car_id = i; // map is updated with car's location
 					break; // exit for-loop
 				}

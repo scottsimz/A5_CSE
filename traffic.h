@@ -13,20 +13,20 @@
 #ifndef TRAFFIC_H_
 #define TRAFFIC_H_
 //--------------------------------------------------
-#define SIM_TIME 1000 //
+#define SIM_TIME 3 //
 //--------------------------------------------------
 #define V_MAX 5 // maximum speed
-#define PROB_SLOW 0.2// probability car speeds decrease randomly
-#define DENSITY 0.5 // initial density of cars on map
+#define PROB_SLOW 0.7// probability car speeds decrease randomly
+#define DENSITY 0.6// initial density of cars on map
 //--------------------------------------------------
-#define S_SPAWN_MEAN 1
+#define S_SPAWN_MEAN 1//(10*SIM_TIME)
 #define N_SPAWN_MEAN 1//(10*SIM_TIME)
-#define E_SPAWN_MEAN 1//(10*SIM_TIME)
+#define E_SPAWN_MEAN 1 //(10*SIM_TIME)
 #define W_SPAWN_MEAN 1//(10*SIM_TIME)
 //---------------------------------------------------
-#define LENGTH 30 //length of a road segment
-#define NUM_LIGHTS_HOR 1 //number of horizontal blocks
-#define NUM_LIGHTS_VERT 1 //number of vertical blocks
+#define LENGTH 5 //length of a road segment
+#define NUM_LIGHTS_HOR 5 //number of horizontal blocks
+#define NUM_LIGHTS_VERT 3 //number of vertical blocks
 //---------------------------------------------------
 #define GRID_HEIGHT ( NUM_LIGHTS_VERT * (2*LENGTH + 3) ) //no of rows
 #define GRID_WIDTH ( NUM_LIGHTS_HOR * (2*LENGTH + 3) ) //no of columns
@@ -42,7 +42,7 @@
 #define GREEN 1
 #define YELLOW 0
 #define RED -1
-#define TIME_GREEN 60
+#define TIME_GREEN 90
 #define TIME_YELLOW 3
 #define TIME_RED (TIME_GREEN - TIME_YELLOW)
 #define TIME_SHIFT 0
@@ -71,6 +71,7 @@ typedef struct car {
 	int x_new;  //new x position
 	int y_new;  //new y position
 	int v_new;  //new velocity
+	int stop_time; //time the car was initialized
 } car;
 
 // spawner structure for cars entering the map from the edges
