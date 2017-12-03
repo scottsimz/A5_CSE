@@ -207,7 +207,7 @@ int get_bounds( int y, int x )
 		printf("Error get_bounds() - arg 'x' cannot be a negative integer\n");
 	}
 
-	if( (y < S_EDGE) || (y > N_EDGE) ) return 0; // check top and bottom edges
+	if( (y > S_EDGE) || (y < N_EDGE) ) return 0; // check top and bottom edges
 	else if( (x < W_EDGE) || (x > E_EDGE) ) return 0; // check left and right edges
 	else return 1; // return 1 if inside outer edges of map
 }
