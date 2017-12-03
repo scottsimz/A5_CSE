@@ -11,8 +11,10 @@ Scott:
 
 
 Felice:
-1. Was responsible for writing functions that govern the movement of vehicles on the map (calculates new velocity, position, acceleration and deceleration, and stopping at red lights). Wrote ghost car function to generate ghost cars at lights. 
-2. Functions are saved in the car kinematics file, 
-3. Report and Analysis: Verification of car movements, fundamental traffic flow diagram analysis. 
+1. Was responsible for writing functions that govern the movement of vehicles on the map 
+(calculates new velocity, position, acceleration and deceleration, and stopping at red lights). 
+2. Wrote ghost car function to generate ghost cars at lights. 
+3. Functions are saved in the car kinematics file, 
+4. Report and Analysis: Verification of car movements, fundamental traffic flow diagram analysis. 
 
 While the above listed work is what each person was responsible for, we also spent a significant amount of time working with each other to debug and improve each other's codes. 
