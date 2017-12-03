@@ -5,3 +5,10 @@ Sandesh (mainly env_map):
 4. car velocity maps: Record and save velocities of cars at every timestep, and save the flow of traffic along a direction to file. Create visualizations. 
 5. Print functions to save snapshots of the grid at various time steps.
 6. Analysis: Create and analyze velocity maps for various regmines (with and without randomization, with and without traffic lights, etc.)
+
+Scott:
+
+
+
+Felice:
+
