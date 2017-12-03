@@ -684,89 +684,51 @@ int main(){
 	}
 
 
-// /////////////////////////////////////////////////////////////////////////////////
-// // WAITLIST FUNCTIONS
-// /////////////////////////////////////////////////////////////////////////////////
-// //Create waitlist
-// carlist* create_list(int size) {
-//     // Allocate memory for the structure
-//     carlist *W = malloc( sizeof (carlist) );
-//     if (W == NULL) {
-//         printf("Could not create waitlist. Out of Memory!\n");
-//         return NULL;
-//     }
+void car_mvmt_plot(cell** grid, char direction, int index, int gridWidth, int gridHeight,car* cars, FILE* outputFile) {
 
-//     // Allocate space for the array in the WaitList struct
-//     // Note that this space is different from that already
-//     // allocated to the structure.
-//     W->elements = malloc( sizeof(car) * size);
-//     if (W->elements == NULL) {
-//         printf("Could not create waitlist. Out of Memory!\n");
-//         return NULL;
-//     }
+	int carID;
 
-//     W->counter = 0;     // 0 elements initially in the list
-//     W->MAX_SIZE = size; // maximum size the list can hold
+	if (direction == NORTH | 
+		direction == SOUTH){
 
-//     return W;
-// }
+		for (int row = 0; row < gridHeight; row++){
+			// fprintf(outputFile,"row: %d\n",row);
+			carID = grid[row][index].car_id;
 
-// int add_to_end(carlist* aList,car* element){
-//     if (aList == NULL){
-//         printf("Could not add to waitlist. No wait list found!");
-//         return 1;
-//     }
+			if( carID < 0){
+				fprintf(outputFile,"%d",-1);
+				if(row != gridHeight -1){
+					fprintf(outputFile,",");	
+				}						
+			} else {
+				// fprintf(outputFile,"|%d|",carID);
+				fprintf(outputFile,"%d",cars[carID].v_new);	
+				if(row != gridHeight -1){
+					fprintf(outputFile,",");	
+				}
+			}
+		}	
+		fprintf(outputFile,"\n");
+		
+	} else if (direction == EAST|
+		direction == WEST){
 
-//     // check if list is full
-//     if (aList->counter == aList->MAX_SIZE){
-//         //Double the size allocated to the list
-//         aList->elements = realloc(aList->elements,aList->MAX_SIZE*2);
-//     }
+		for(int col = 0; col < gridWidth; col++){
+			// fprintf(outputFile,"col: %d\n",col);
+			carID = grid[index][col].car_id;
 
-//     // add an element to the end of the list
-//     // and increment the counter
-//     aList->elements[aList->counter] = *element;
-//     aList->counter++;
-
-//     return 0;
-// }
-
-
-// int remove_first_car(carlist* aList){
-
-//     if(aList == NULL){
-//         printf("Could not remove from waitlist. No wait list found!");
-//         return 1;
-//     } else if (aList->counter == 0) {
-//         return 0; //don't do anything if counter is already 0
-//     }
-
-//     //
-//     for(int i = 1; i < aList->counter; i++){
-//         aList->elements[i] = aList->elements[i+1];
-//     }
-
-//     aList->counter = aList->counter - 1; //reduce the counter size by 1
-// }
-
-
-// int free_list(carlist *aList) {
-//     printf("Free List Called\n");
-
-//     // NULL pointer can't be freed
-//     if (aList == NULL){
-// 		return 1;
-//     }
-
-//     printf("alist is not null\n");
-
-//     // first free the dynamically allocated array
-//     if (aList->elements != NULL)
-//         free(aList->elements);
-
-// 	printf("Now let's free alist\n");
-
-//     // now free the pointer to the struct
-//     free(aList);
-//     return 0;
-// }
+			if( carID < 0){
+				fprintf(outputFile,"%d",-1);
+				if(col != gridWidth  -1){
+					fprintf(outputFile,",");	
+				}						
+			} else {
+				fprintf(outputFile,"%d",cars[carID].v_new);
+				if(col != gridWidth -1){
+					fprintf(outputFile,",");	
+				}				
+			}
+		}
+		fprintf(outputFile,"\n");
+	}
+}

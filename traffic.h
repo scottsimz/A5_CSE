@@ -117,5 +117,6 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList);
 //int update_cars(int max_cars, car* cars, cell** grid);
 double uniform(void);
+void car_mvmt_plot(cell** grid, char direction, int index, int gridWidth, int gridHeight,car* cars, FILE* outputFile);
 //--------------------------------------------------
 #endif /* TRAFFIC_H_ */

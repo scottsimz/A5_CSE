@@ -50,12 +50,15 @@ int main(void)//(int argc, char *argv[])
 	// open file for writing
 	FILE *output_vel = fopen( "results_velocities.txt","w");
 	FILE *output_cars = fopen( "results_cars.txt","w");
-	if( (output_vel == NULL) || (output_cars == NULL) )
+	FILE *output_mvmt = fopen( "results_mvmt.csv","w");	
+
+	if( (output_vel == NULL) || (output_cars == NULL) || (output_mvmt == NULL)  )
 	{
 		printf("Error - fopen(): files created for writing results are NULL\n");
 		return 1;
 	}
 	printf("Files opened for writing\n");
+
 
 	// declared variables
 	int max_cars=0,error_check=0,timer=0;
@@ -177,6 +180,15 @@ int main(void)//(int argc, char *argv[])
 		fprint_num_cars(num_cars,max_cars,timer,output_cars);
 		fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output_vel);
 
+	// (7) Update car movement plot
+	//Plot car IDS	
+	char direction = EAST;
+	int start = LENGTH + 2; //North
+	//int start = LENGTH //South
+	//int start = LENGTH //West
+	//int start = LENGTH +2 //East
+	car_mvmt_plot(grid,direction,start,GRID_WIDTH,GRID_HEIGHT,cars,output_mvmt);	
+
 	}
 
 	printf("SIMULATION COMPLETE!\n");
@@ -190,6 +202,7 @@ int main(void)//(int argc, char *argv[])
 	//EXIT
 	fclose(output_vel);
 	fclose(output_cars);
+	fclose(output_mvmt);
 	printf("Closed files for writing\n");
 	return 0;
 }
