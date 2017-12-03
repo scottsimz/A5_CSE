@@ -159,7 +159,10 @@ int main(void)//(int argc, char *argv[])
 				{
 					grid[y][x].car_id = i ; // add index of car to new map location
 
-					if(cars[i].x_old == cars[i].x_old){cars[i].stop_time += 1;}
+					// if(cars[i].x_old == cars[i].x_new ||
+					// 	cars[i].y_old == cars[i].y_new ){ //if the car did not change positions, add to its stop time
+					// 	cars[i].stop_time += 1;
+					// } 
 
 					cars[i].x_old = cars[i].x_new;
 					cars[i].y_old = cars[i].y_new;
