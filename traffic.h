@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #ifndef TRAFFIC_H_
 #define TRAFFIC_H_
@@ -15,17 +16,13 @@
 #define SIM_TIME 1000 //
 //--------------------------------------------------
 #define V_MAX 5 // maximum speed
-#define PROB_SLOW 0.2//
-#define DENSITY 0.3 // initial density of cars on map
+#define PROB_SLOW 0.2// probability car speeds decrease randomly
+#define DENSITY 0.5 // initial density of cars on map
 //--------------------------------------------------
-#define S_SPAWN_MIN 3
-#define S_SPAWN_MAX 10
-#define N_SPAWN_MIN 3// (SIM_TIME+1)
-#define N_SPAWN_MAX 10//(SIM_TIME+1)
-#define E_SPAWN_MIN 3//(SIM_TIME+1)
-#define E_SPAWN_MAX 10//(SIM_TIME+1)
-#define W_SPAWN_MIN 3//(SIM_TIME+1)
-#define W_SPAWN_MAX 10//(SIM_TIME+1)
+#define S_SPAWN_MEAN 1
+#define N_SPAWN_MEAN 1//(10*SIM_TIME)
+#define E_SPAWN_MEAN 1//(10*SIM_TIME)
+#define W_SPAWN_MEAN 1//(10*SIM_TIME)
 //---------------------------------------------------
 #define LENGTH 30 //length of a road segment
 #define NUM_LIGHTS_HOR 1 //number of horizontal blocks
@@ -34,9 +31,9 @@
 #define GRID_HEIGHT ( NUM_LIGHTS_VERT * (2*LENGTH + 3) ) //no of rows
 #define GRID_WIDTH ( NUM_LIGHTS_HOR * (2*LENGTH + 3) ) //no of columns
 //---------------------------------------------------
-#define S_EDGE (0+V_MAX)
+#define S_EDGE (GRID_HEIGHT-1-V_MAX)
 #define W_EDGE (0+V_MAX)
-#define N_EDGE (GRID_HEIGHT-1-V_MAX)
+#define N_EDGE (0+V_MAX)
 #define E_EDGE (GRID_WIDTH-1-V_MAX)
 //---------------------------------------------------
 #define NUM_SPAWNERS ( ( NUM_LIGHTS_VERT + NUM_LIGHTS_HOR ) * 2 ) // declares array of cars_new7ghh
@@ -45,9 +42,9 @@
 #define GREEN 1
 #define YELLOW 0
 #define RED -1
-#define TIME_GREEN 64
-#define TIME_YELLOW 4
-#define TIME_RED 60
+#define TIME_GREEN 60
+#define TIME_YELLOW 3
+#define TIME_RED (TIME_GREEN - TIME_YELLOW)
 #define TIME_SHIFT 0
 //---------------------------------------------------
 #define EMPTY ' '

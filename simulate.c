@@ -9,10 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #include "traffic.h"			// Use shared definitions
 
-#//define MAX_CELLS ( 2*( (NUM_LIGHTS_VERT * GRID_WIDTH) + (NUM_LIGHTS_HOR * GRID_HEIGHT) - (NUM_LIGHTS) ) )
 //----------------------------------
 // FUNCTION PROTOTYPES
 spawner* init_spawners(cell** grid);
@@ -21,10 +21,10 @@ int get_bounds( int y, int x);
 int update_spawners(int max_cars,spawner* spawners,car* cars,cell** grid);
 int get_timer( char dir );
 void init_cars(int max_cars, car* cars);
-int fprint_vel(int n1, int n2, int timer, car* cars, cell **a,FILE* f);
-void fprint_density( int num_cars, int max_cars, int sim_time,FILE* f);
-	//void spawn( struct spawner *ptr );
-	//int get_max_cars(void);
+void fprint_vel(int n1, int n2, int timer, car* cars, cell **a,FILE* f);
+void fprint_num_cars( int num_cars, int max_cars, int sim_time,FILE* f);
+double randexp(double mean);
+
 //----------------------------------
 
 // MAIN SIM-LOOP
@@ -47,14 +47,10 @@ int main(void)//(int argc, char *argv[])
 		return 1;
 	}
 
-	int gridHeight = NUM_LIGHTS_VERT * (2*LENGTH + 3); //no of rows
-	int gridWidth = NUM_LIGHTS_HOR * (2*LENGTH + 3); //no of columns
-
-
 	// open file for writing
 	FILE *output_vel = fopen( "results_velocities.txt","w");
-	FILE *output_den = fopen( "results_density.txt","w");
-	if( (output_vel == NULL) || (output_den == NULL) )
+	FILE *output_cars = fopen( "results_cars.txt","w");
+	if( (output_vel == NULL) || (output_cars == NULL) )
 	{
 		printf("Error - fopen(): files created for writing results are NULL\n");
 		return 1;
@@ -67,106 +63,86 @@ int main(void)//(int argc, char *argv[])
 
 	//-------------------------------------------------------------
 	// INITIALIZATIONS
-	printf("INITIALIZATIONS:\n");
-	// (1) Initialize Lights
+		printf("INITIALIZATIONS:\n");
+
+	// (1) LIGHTS
 	trafficLight* lights = init_lights(TIME_GREEN,TIME_YELLOW,TIME_RED,TIME_SHIFT); // arguments held in header (traffic.h)
-	printf("(1) traffic lights\n");
+		printf("(1) traffic lights\n");
 
-	// (2) Initialize Map
+	// (2) MAP
 	cell** grid = init_grid(lights,&max_cars);
-	printf("(2) map (max_cars = %d)\n",max_cars);
+		printf("(2) map (max_cars = %d)\n",max_cars);
 
-	// (3) Initialize Cars stored in one array
+	// (3) CARS
 	car cars[max_cars]; // declares array of cars
 	init_cars(max_cars,cars); // initializes all cars in list to inactive
-		error_check = fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output_vel);
-		if( error_check == 1 ) return 1;
+		fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output_vel);
 	//random_fill(grid,DENSITY,cars); // initializes map with cars, modifying both the car-list and grid-matrix
-	random_fill(grid,gridHeight,gridWidth,DENSITY,cars);
-	printf("(3) cars\n");
-		error_check = fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output_vel);
-		if( error_check == 1 ) return 1;
+	random_fill( grid, GRID_HEIGHT, GRID_WIDTH, DENSITY, cars);
+		printf("(3) cars\n");
+		fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output_vel);
 
-	// (4) Initialize Ghost Cars
-	int light_row = LENGTH + 1;
-	int light_col =	LENGTH + 1;
+	// (4) GHOST
+	int row_light = LENGTH + 1;
+	int col_light =	LENGTH + 1;
+		printf("(4) ghost cars\n");
 
-	// (5) Initialize Spawners
+	// (5) SPAWNERS
 	spawner* spawners = init_spawners(grid);
-	printf("(5) spawners\n");
+		printf("(5) spawners\n");
 
 	//-------------------------------------------------------------
 	// SIM-LOOP
+		printf("SIM-LOOP:\n");
 
-	printf("SIM-LOOP:\n");
+		// print header for file 'output_cars'
+		fprintf(output_cars,"(Initial Density) %f (Max Cars) %d (Road Length) %d \n",(float)DENSITY,max_cars,LENGTH);
+		fprintf(output_cars,"Time of NS_Light: (Green) %d (Yellow) %d (Red) %d \n",TIME_GREEN,TIME_YELLOW,TIME_RED);
+		fprintf(output_cars,"Mean Spawn Time: (N) %d (S) %d (E) %d (W) %d \n",N_SPAWN_MEAN,S_SPAWN_MEAN,E_SPAWN_MEAN,W_SPAWN_MEAN);
+		fprintf(output_cars,"|   Time   | Num Cars |\n");
 
-		// print header for file 'output_den'
-		fprintf(output_den,"Initial Density ( %f ) Max_Cars ( %d ) Length ( %d )\n",(float)DENSITY,max_cars,LENGTH);
-		fprintf(output_den,"NS_Light: Green ( %d ) Yellow ( %d ) Red ( %d )\n",TIME_GREEN,TIME_YELLOW,TIME_RED);
-		fprintf(output_den,"Spawn Ranges: N S E W\n");
-		fprintf(output_den," %d %d \n",N_SPAWN_MIN, N_SPAWN_MAX);
-		fprintf(output_den," %d %d \n",S_SPAWN_MIN, S_SPAWN_MAX);
-		fprintf(output_den," %d %d \n",E_SPAWN_MIN, E_SPAWN_MAX);
-		fprintf(output_den," %d %d \n",W_SPAWN_MIN, W_SPAWN_MAX);
-		fprintf(output_den,"|   Time   | Density |\n");
-
-	int x,y,i,num_cars;
+	int x,y,i,num_cars,x_pos,y_pos,num_empty;
+	char direction;
 
 	while(timer < SIM_TIME)
 	{
 		timer ++;
-		printf("time = %d\n",timer);
-	// (1) Update Lights
+
+	// (1) UPDATE LIGHTS
 		error_check = update_lights(lights);
-		if( error_check == 1 ) return 1;
-		fprintf(output_vel,"NS_LIGHT(%d)\n",lights[0].northSouthLight);
-		printf("(1) update lights\n");
+			if( error_check == 1 ) return 1;
+			printf("time = %d\n",timer);
+			fprintf(output_vel,"NS_LIGHT(%d)\n",lights[0].northSouthLight);
+			//printf("(1) update lights\n");
 
-	// (2) Update Ghost Cars
-		ghost(grid, light_row, light_col, &lights[0]);
+	// (2) UPDATE GHOST
+		ghost(grid, row_light, col_light, &lights[0]);
 
-	// (3) Update Cars
+	// (3) UPDATE CARS
 			/*error_check = update_cars( max_cars, cars, grid);
 			if( error_check == 1 ) return 1; */
-
+		//----------------------------------------------------------
 		num_cars=0; // reset counter for active cars
 
 		for(int i = 0; i < max_cars; i++){
 			if(cars[i].id > -1){
 
 				num_cars++; // count number of active cars
-				int index = cars[i].id; // this is the ID of the car we're considering
-				int x_pos = cars[i].x_old; //current x position of car
-				int y_pos = cars[i].y_old; //current y position of car
+				x_pos = cars[i].x_old; //current x position of car
+				y_pos = cars[i].y_old; //current y position of car
+				direction = cars[i].direction;
 
-				printf("-----------------------\n");
-				printf("x is %d\n",x_pos);
-				printf("y is %d\n",y_pos);
-				printf("The Car ID is %d \n",index);
-
-				char direction = cars[i].direction;
-				//cars[i].map_elem;
-				//printf("Direction is  %c\n ",direction);
-
-				//CHECK SPACES
-				int empty = emptycellcount(grid, gridWidth, gridHeight, x_pos, y_pos, direction);
-				//printf("Returned emptyspaces count = %d\n", empty);
-
-				//UPDATE VELOCITY
-				//printf("VELOCITY OLD Before update %d\n",cars[i].v_old);
-				//printf("Old Velocity = %d\n",cars[i].v_old);
-
-				//int v = update_velocity(&cars[i], grid, empty);
-				//printf("Returned velocity = %d\n",v);
-				//printf("**** BEFORE UPDATE CAR FUNCTION ********\n");
-				update_car(&cars[i], grid, empty, max_cars, i, cars);
+				//check free spaces
+				num_empty = emptycellcount(grid, GRID_WIDTH, GRID_HEIGHT, x_pos, y_pos, direction);
+				// update new position and speed
+				update_car(&cars[i], grid, num_empty, max_cars, i, cars);
 
 			}//end if
 		}
-		fprint_density(num_cars,max_cars,timer,output_den);
-		printf("(3) update cars\n");
+			//printf("(3) update cars\n");
+		//-----------------------------------------------------------
 
-	// (4) Update Map and copy cars for next iteration
+	// (4) UPDATE MAP (and save new int old for next loop)
 		for(i=0; i<max_cars; i++)
 		{
 			if( cars[i].id > -1) // check if car is active on map
@@ -190,32 +166,31 @@ int main(void)//(int argc, char *argv[])
 
 			}
 		}
-		printf("(4) update map\n");
+			//printf("(4) update map\n");
 
-	// (5) Update Spawners
+	// (5) UPDATE SPAWNERS
 		error_check = update_spawners( max_cars, spawners, cars, grid);
-		if( error_check == 1 ) return 1;
-		printf("(5) update spawners\n");
+			if( error_check == 1 ) return 1;
+			//printf("(5) update spawners\n");
 
-	// (6) Print Velocities of cars on map
-		ghost(grid, light_row, light_col, &lights[0]);
-		error_check = fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output_vel);
-		if( error_check == 1 ) return 1;
+	// (6) PRINT
+		fprint_num_cars(num_cars,max_cars,timer,output_cars);
+		fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output_vel);
 
 	}
 
 	printf("SIMULATION COMPLETE!\n");
 	//----------------------------------------------------------------
 	//FREE ALLOCATED MEMORY
-	free_grid(gridHeight,gridWidth,grid);
+	free_grid(GRID_HEIGHT,GRID_WIDTH,grid);
 	free(lights);
 	free(spawners);
 
 	//----------------------------------------------------------------
 	//EXIT
 	fclose(output_vel);
-	fclose(output_den);
-	printf("Closed file traffic_results.txt\n");
+	fclose(output_cars);
+	printf("Closed files for writing\n");
 	return 0;
 }
 
@@ -319,7 +294,7 @@ int update_spawners(int max_cars,spawner* spawners,car* cars,cell** grid)
 		x = spawners[j].x ; // stores x-position of spawn point
 		y = spawners[j].y ; // stores y-position of spawn point
 
-		// checks if timer is zero AND if spawn-point is clear of cars
+		// checks if timer is zero (or less) AND if spawn-point is clear of cars
 		if( (spawners[j].timer <= 0) && (grid[y][x].car_id == -1) )
 		{
 			for(int i=0; i<max_cars; i++) // search through index of car-array
@@ -385,7 +360,7 @@ void spawn( struct spawner *ptr )
 ***/
 
 //--------------------------------------------------------------------------------------
-// Initializes a linked-list of spawners and returns a head pointer for the linked-list.
+// Initializes an array of spawners and returns the allocated array.
 
 spawner* init_spawners(cell** grid)
 {
@@ -400,6 +375,7 @@ spawner* init_spawners(cell** grid)
 	int x,y,i=0;
 	spawner* spawners = (spawner*) malloc( NUM_SPAWNERS*sizeof(spawner) );
 
+	//-------------------------------------------
 	// scan left edge of map
 	x=0;
 	for(y=0; y<GRID_HEIGHT; y++)
@@ -428,8 +404,8 @@ spawner* init_spawners(cell** grid)
 		}
 	}
 
-	// scan bottom edge of map
-	y=0;
+	// scan bottom edge of map (matrix indexing)
+	y=GRID_HEIGHT-1;
 	for(x=0; x<GRID_WIDTH; x++)
 	{
 		if(grid[y][x].map_elem == 'I')
@@ -442,8 +418,8 @@ spawner* init_spawners(cell** grid)
 		}
 	}
 
-	// scan top edge of map
-	y=GRID_HEIGHT-1;
+	// scan top edge of map (matrix indexing)
+	y=0;
 	for(x=0; x<GRID_WIDTH; x++)
 	{
 		if(grid[y][x].map_elem == 'I')
@@ -455,6 +431,8 @@ spawner* init_spawners(cell** grid)
 			i++;
 		}
 	}
+
+	//-------------------------------------------
 	// return head of linked-list of spawners
 	return spawners;
 }
@@ -540,64 +518,53 @@ int get_timer( char dir )
 {
 	if( dir == 'N')
 	{
-		return( N_SPAWN_MIN + (N_SPAWN_MAX - N_SPAWN_MIN)*(uniform()) );
+		return (int)round( randexp(N_SPAWN_MEAN) );
 	}
 	else if( dir == 'S')
 	{
-		return( S_SPAWN_MIN + (S_SPAWN_MAX - S_SPAWN_MIN)*(uniform()) );
+		return (int)round( randexp(S_SPAWN_MEAN) );
 	}
 	else if( dir == 'W')
 	{
-		return( W_SPAWN_MIN + (W_SPAWN_MAX - W_SPAWN_MIN)*(uniform()) );
+		return (int)round( randexp(W_SPAWN_MEAN) );
 	}
 	else if( dir == 'E')
 	{
-		return( E_SPAWN_MIN + (E_SPAWN_MAX - E_SPAWN_MIN)*(uniform()) );
+		return (int)round( randexp(E_SPAWN_MEAN) );
 	}
 	else
 	{
 		printf("Error get_timer() - Invalid direction '%c'\n",dir);
-		return 0;
+		return SIM_TIME;
 	}
 }
-
-//--------------------------------------------------------------------------------------
-// Function call returns an upper bound for the maximum number of cars that can fit on the roads.
-// Evaluates perfect squares until greater than or equal to the number of intersections/lights.
-/***
-int get_max_cars(void)
-{
-	int i=0,sq=0;
-
-	// loop continues until sq >= NUM_LIGHTS
-	while( sq < NUM_LIGHTS )
-	{
-		i++;
-		sq = i*i;
-	}
-	return ( (WIDTH+HEIGHT)*i*2 );
-}
-***/
 
 //----------------------------------------------------------------------------------------
-int fprint_vel(int n1, int n2,int time, car* cars, cell **a,FILE* f)
+
+double randexp(double mean)
+{
+	return  (-mean)*log( (double)1.0-uniform() ); // avoids inserting zero into ln() function
+}
+
+//----------------------------------------------------------------------------------------
+void fprint_vel(int n1, int n2,int time, car* cars, cell **a,FILE* f)
 {
 
 	// check for valid inputs
 	if (n1 < 1 || n2 < 1)
 	{
 		printf("Error - fprint_vel(): rows and columns of matrix must be positive\n");
-		return 1;
+		return;
 	}
 	else if ( a == NULL)
 	{
 		printf("Error - fprint_vel(): arg 'a[][]' is NULL\n");
-		return 1;
+		return;
 	}
 	else if ( f == NULL)
 	{
 		printf("Error - fprint_vel(): arg 'file' is NULL\n");
-		return 1;
+		return;
 	}
 
 	// declare variables
@@ -630,12 +597,11 @@ int fprint_vel(int n1, int n2,int time, car* cars, cell **a,FILE* f)
 	}
 	fprintf(f,"\n");
 
-	return 0; // no errors found
 }
 
-void fprint_density( int num_cars, int max_cars, int sim_time,FILE* f)
+//---------------------------------------------------------------------------------------------------------
+void fprint_num_cars( int num_cars, int max_cars, int sim_time,FILE* f)
 {
-	float density = (float)num_cars / (float)max_cars;
-
-	fprintf(f,"%d	%f\n",sim_time,density);
+	//float density = (float)num_cars / (float)max_cars;
+	fprintf(f,"%d	%d\n",sim_time,num_cars); // can be changed back to density
 }

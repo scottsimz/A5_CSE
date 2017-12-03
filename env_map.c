@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "traffic.h"
 
 /****************************
@@ -178,13 +179,15 @@ int main(){
 			return 1;
 		}
 
+		int n_red,n_yellow,n_green,period,lightTimer;
+
 		for(int i=0; i<NUM_LIGHTS; i++)
 		{
-			int n_red = lights[i].time_red;
-			int n_yellow = lights[i].time_yellow;
-			int n_green = lights[i].time_green;
-			int period = n_red + n_yellow + n_green + n_yellow; //the period for a traffic light cycle
-			int lightTimer = (lights[i].timer++); // (SCOTT)******************************
+			n_red = lights[i].time_red;
+			n_yellow = lights[i].time_yellow;
+			n_green = lights[i].time_green;
+			period = n_red + n_yellow + n_green + n_yellow; //the period for a traffic light cycle
+			lightTimer = (lights[i].timer++); // (SCOTT)******************************
 
 			if ( (lightTimer > period) | (lightTimer < 0) ) lights[i].timer = lightTimer = 0; // (SCOTT) checks and resets timer ***************************
 
@@ -668,13 +671,13 @@ int main(){
 	//rand uniform dist from engine
 	double uniform(void)
 	{
-		return rand() / (RAND_MAX + 1.0);
+		return ( (double)rand() / (double)RAND_MAX );  //result is between [0,1) because rand() generates a number between [0,RAND_MAX)
 	}
 	//---------------------------------------------------------------------------------------------------
 	//Generate a random number uniformly distributed over an interval [LowerLimit,UpperLimit)
 	double urand(int LowerLimit,int UpperLimit){
 
-		double ratio = rand() / ((float)RAND_MAX + 1);  //RAND_MAX + 1 because we don't want to include upper limit
+		double ratio = (double)rand() / (double)RAND_MAX;  //result is between [0,1) because rand() generates a number between [0,RAND_MAX)
 		double interval = UpperLimit - LowerLimit;
 		double unirand = (ratio * interval);
 		return unirand;
