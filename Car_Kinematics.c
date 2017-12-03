@@ -10,9 +10,9 @@
 	int n_green = 10;
 
 //	int vmax = 5;
-	double density = 0.4;
+//	double density = 0.4;
 //	int num_samples = 200;
-	int car_count = 0;
+//	int car_count = 0;
 //	int numfront = 0;
 //	double p_rand = 0.4;
 
@@ -44,7 +44,7 @@
 	int num_samples = 200;
 //	int car_count = 0;
 	int numfront = 0;
-	double p_rand = 0.2;
+//	double p_rand = 0.2;
 
 //
 ////define a car struct
@@ -279,7 +279,7 @@ int update_velocity(struct car *c, cell** grid, int empty){
 
 	//printf("V temp is --- %d\n",v_temp);
 	//Randomization step. If random number less than prob, decrement vtemp
-	if( (rn < p_rand) && (v_temp > 0) ){
+	if( (rn < PROB_SLOW) && (v_temp > 0) ){
 		//printf("YES RANDOMIZATION\n");
 		v_temp --;
 	}
