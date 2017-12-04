@@ -1,11 +1,12 @@
-Sandesh (mainly env_map):
+Sandesh:
 1. Create a grid of arbitrary dimensions and appropirately fill it with traffic map elements
 2. Initialize the grid with a uniform distribution of cars.
 3. Create traffic light stuctures and develop traffic light cycle. Create function to update traffic lights.
 4. car velocity maps: Record and save velocities of cars at every timestep, and save the flow of traffic along a direction to file. Create visualizations. 
 5. Print functions to save snapshots of the grid at various time steps.
-6. Analysis: Create and analyze velocity maps for various regmines (with and without randomization, with and without traffic lights, etc.)
-in
+6. Analysis: Create and analyze velocity maps for various regmines (with and without randomization, with and without traffic lights, etc.)]
+7.Functions to record average wait time for cars on the grid.
+
 Scott:
 
 
