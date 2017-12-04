@@ -4,6 +4,7 @@
 #include <math.h>
 #include "traffic.h"
 
+int flow = 0;
 
 /*
 	int n_red = 5;
@@ -150,7 +151,7 @@ int main(){
 		printf("%d,",activeCarList[i].id);
 	}
 	printf("\n");
-	//-------------------FELICE------------------------------------------------
+
 	//loop over active car list from counter
 	for(int i = 0; i < n_cars; i++){
 		if(activeCarList[i].id !=-1){
@@ -180,9 +181,7 @@ int main(){
 }
 ***********************************/
 
-//----------------------FELICE--------------------------------------------//
 
-//--------------------------------------------------------------//
 //FIND OUT HOW MANY SPACES ARE IN FRONT
 int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, char direction){
 
@@ -309,6 +308,10 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			int x_current = c->x_new;
 			c->x_old = x_current;
 			c->x_new = x_current + v;
+			
+			if(c->x_new > (GRID_WIDTH / 2) &&  c->x_old <(GRID_WIDTH / 2)){
+				flow++;
+			}
 
 			//Y STAYS THE SAME IN WEST-BOUND TRAFFIC
 			c->y_new = c->y_old;
@@ -338,6 +341,10 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 
 			//Y STAYS THE SAME IN WEST-BOUND TRAFFIC
 			c->y_new = c->y_old;
+			
+			if(c->x_new < (GRID_WIDTH / 2) &&  c->x_old >(GRID_WIDTH / 2)){
+				flow++;
+			}
 
 			//printf("y old %d , y new %d\n", c->y_old, c->y_new);
 			//printf("x old %d , x new %d\n", c->x_old, c->x_new);
@@ -360,6 +367,10 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			int y_current = c->y_new;
 			c->y_old = y_current;
 			c->y_new = y_current - v;
+			
+			if(c->y_new < (GRID_HEIGHT / 2) &&  c->y_old >(GRID_HEIGHT / 2)){
+				flow++;
+			}
 
 			//X STAYS THE SAME IN NORTH-BOUND TRAFFIC
 			c->x_new = c->x_old;
@@ -385,6 +396,11 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			int y_current = c->y_new;
 			c->y_old = y_current;
 			c->y_new = y_current + v;
+			
+			if(c->y_new > (GRID_HEIGHT / 2) && c->y_old <(GRID_HEIGHT / 2)){
+				flow++;
+			}
+
 
 			//X STAYS THE SAME IN SOUTH-BOUND TRAFFIC
 			c->x_new = c->x_old;
