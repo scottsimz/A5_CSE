@@ -452,7 +452,7 @@ void car_mvmt_plot(cell** grid, char direction, int index, int gridWidth, int gr
 				fprintf(outputFile,"%d",-1);
 				if(row != gridHeight -1){
 					fprintf(outputFile,",");	
-				}						
+				}
 			} else {
 				// fprintf(outputFile,"|%d|",carID);
 				fprintf(outputFile,"%d",cars[carID].v_new);	

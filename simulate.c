@@ -18,7 +18,7 @@
 spawner* init_spawners(cell** grid);
 trafficLight* init_lights(int green,int yellow, int red, int shift);
 int get_bounds( int y, int x);
-int update_spawners(int max_cars,spawner* spawners,car* cars,cell** grid);
+int update_spawners(int max_cars,int sum_time,spawner* spawners,car* cars,cell** grid);
 int get_timer( char dir );
 void init_cars(int max_cars, car* cars);
 void fprint_vel(int n1, int n2, int timer, car* cars, cell **a,FILE* f);
@@ -47,6 +47,7 @@ int main(void)//(int argc, char *argv[])
 		return 1;
 	}
 
+	//--------------------------------------------------------------
 	// open file for writing
 	FILE *output_vel = fopen( "results_velocities.txt","w");
 	FILE *output_cars = fopen( "results_cars.txt","w");
@@ -61,7 +62,7 @@ int main(void)//(int argc, char *argv[])
 
 
 	// declared variables
-	int max_cars=0,error_check=0,timer=0;
+	int max_cars=0,error_check=0,timer=0,total_time_cars=0,total_time_cycles=0,total_cycles=0;
 	srand( 0 ); // seeds the rand() function
 
 	//-------------------------------------------------------------
@@ -102,7 +103,7 @@ int main(void)//(int argc, char *argv[])
 		fprintf(output_cars,"(Initial Density) %f (Max Cars) %d (Road Length) %d \n",(float)DENSITY,max_cars,LENGTH);
 		fprintf(output_cars,"Time of NS_Light: (Green) %d (Yellow) %d (Red) %d \n",TIME_GREEN,TIME_YELLOW,TIME_RED);
 		fprintf(output_cars,"Mean Spawn Time: (N) %d (S) %d (E) %d (W) %d \n",N_SPAWN_MEAN,S_SPAWN_MEAN,E_SPAWN_MEAN,W_SPAWN_MEAN);
-		fprintf(output_cars,"|   Time   | Num Cars |\n");
+		fprintf(output_cars,"| TIME | CARS |\n");
 
 	int x,y,i,num_cars,x_pos,y_pos,num_empty;
 	char direction;
@@ -111,26 +112,24 @@ int main(void)//(int argc, char *argv[])
 	{
 		timer ++;
 
-	// (1) UPDATE LIGHTS
+		// (1) UPDATE LIGHTS
 		error_check = update_lights(lights);
 			if( error_check == 1 ) return 1;
 			printf("time = %d\n",timer);
 			fprintf(output_vel,"NS_LIGHT(%d)\n",lights[0].northSouthLight);
 			//printf("(1) update lights\n");
 
-	// (2) UPDATE GHOST
+		// (2) UPDATE GHOST
 		ghost(grid, row_light, col_light, &lights[0]);
 
-	// (3) UPDATE CARS
+		//----------------------------------------------------------
+		// (3) UPDATE CARS (FELICE)
 			/*error_check = update_cars( max_cars, cars, grid);
 			if( error_check == 1 ) return 1; */
-		//----------------------------------------------------------
-		num_cars=0; // reset counter for active cars
 
 		for(int i = 0; i < max_cars; i++){
 			if(cars[i].id > -1){
 
-				num_cars++; // count number of active cars
 				x_pos = cars[i].x_old; //current x position of car
 				y_pos = cars[i].y_old; //current y position of car
 				direction = cars[i].direction;
@@ -143,84 +142,97 @@ int main(void)//(int argc, char *argv[])
 			}//end if
 		}
 			//printf("(3) update cars\n");
-		//-----------------------------------------------------------
 
-	// (4) UPDATE MAP (and save new int old for next loop)
+		//-----------------------------------------------------------
+		// (4) UPDATE MAP (and copies new cars into old cars for next loop)
+		num_cars=0; // reset counter for active cars
 		for(i=0; i<max_cars; i++)
 		{
 			if( cars[i].id > -1) // check if car is active on map
 			{
 				grid[cars[i].y_old][cars[i].x_old].car_id = -1; // remove old car from old map location
 
-				y = cars[i].y_new ; // store new car positions
+				y = cars[i].y_new ; // store new positions
 				x = cars[i].x_new ;
 
 				if( get_bounds(y,x) == 1) // true=1 if car inside boundaries
 				{
 					grid[y][x].car_id = i ; // add index of car to new map location
 
-
-					if(cars[i].v_old == 0 ){ //if the car did not change positions, add to its stop time
-						cars[i].stop_time += 1;
-					} 					
+					if(cars[i].v_old == 0 ){ cars[i].stop_time += 1; }// (SANDESH) if the car did not change positions, add to its stop time
 
 					cars[i].x_old = cars[i].x_new;
 					cars[i].y_old = cars[i].y_new;
 					cars[i].v_old = cars[i].v_new;
+
+					if(timer>TIME_STABLE) // allows for stability before recording data
+					{
+						num_cars++; // count number of active cars
+						total_time_cars++; // count total time of active cars on map
+					}
 				}
 				else // if car outside boundaries (along edges of map)
 				{
 					cars[i].id = -1; // remove car from old array
-				}
 
+					if(timer>TIME_STABLE) // sums time on map for each car when removed
+					{
+						total_time_cycles += (timer - cars[i].spawn_time);
+						total_cycles ++;
+					}
+				}
 			}
 		}
 			//printf("(4) update map\n");
 
-	// (5) UPDATE SPAWNERS
-		error_check = update_spawners( max_cars, spawners, cars, grid);
+		//-----------------------------------------------------------
+		// (5) UPDATE SPAWNERS
+		error_check = update_spawners( max_cars, timer, spawners, cars, grid);
 			if( error_check == 1 ) return 1;
 			//printf("(5) update spawners\n");
 
-	// (6) PRINT
+		// (6) PRINT
 		fprint_num_cars(num_cars,max_cars,timer,output_cars);
 		fprint_vel(GRID_HEIGHT,GRID_WIDTH,timer,cars,grid,output_vel);
 
-	// (7) Update car movement plot
-	//Plot car IDS	
-	char direction = EAST;
-	int start = LENGTH + 2; //North
-	//int start = LENGTH //South
-	//int start = LENGTH //West
-	//int start = LENGTH +2 //East
-	car_mvmt_plot(grid,direction,start,GRID_WIDTH,GRID_HEIGHT,cars,output_mvmt);	
+		//-----------------------------------------------------------
+		// (7) UPDATE MOVEMENT PLOT (SANDESH)
+		//Plot car IDS
+		char direction = EAST;
+		int start = LENGTH + 2; //North
+		//int start = LENGTH //South
+		//int start = LENGTH //West
+		//int start = LENGTH +2 //East
+		car_mvmt_plot(grid,direction,start,GRID_WIDTH,GRID_HEIGHT,cars,output_mvmt);
+		//-----------------------------------------------------------
 
 	}
 
 	printf("SIMULATION COMPLETE!\n");
-
+	fprintf(output_cars,"SIMULATION COMPLETE!\n");
 
 	//--------------------------------------------------------------
-	//COMPUTE AVERAGE STOP TIME
-	int totalStopTime = 0;
-	int totalCars = 0;
+	//COMPUTE FRACTION TIME 	STOPPED (SANDESH)
+	int total_time_stopped = 0;
 	for (int i = 0; i < max_cars; i++){
-
 		// if(cars[i].direction == NORTH ||
 		// 	cars[i].direction == SOUTH)
-		totalStopTime += cars[i].stop_time;
-
-		if(cars[i].id > totalCars){
-			totalCars = cars[i].id;
-		}
+		total_time_stopped += cars[i].stop_time;
 	}
 
+	double fraction_time_stopped = (double)total_time_stopped / (double)total_time_cars;
+	printf("Total Time Stopped: %d\n",total_time_stopped);
+	printf("Total Time of Cars: %d\n",total_time_cars);
+	printf("Fraction Time Stopped: %f\n",(float)fraction_time_stopped);
+	fprintf(output_cars,"Total Time Stopped: %d\n",total_time_stopped);
+	fprintf(output_cars,"Total Time of Cars: %d\n",total_time_cars);
+	fprintf(output_cars,"Fraction Time Stopped: %f\n",(float)fraction_time_stopped);
 
-	int avgStopTime = totalStopTime/totalCars;
-	// printf("Total Stop Time: %d\n",totalStopTime);
-	// printf("Total Cars: %d\n",totalCars);	
-	// printf("Avg Stop Time: %d\n",avgStopTime);
-
+	//----------------------------------------------------------------
+	//COMPUTE AVG TIME ON MAP PER CAR
+	double avg_time_cycle = (double)total_time_cycles / (double)total_cycles;
+	printf("Average Time on Map: %f\n",avg_time_cycle);
+	fprintf(output_cars,"Average Time on Map: %f\n",avg_time_cycle);
 
 	//----------------------------------------------------------------
 	//FREE ALLOCATED MEMORY
@@ -237,7 +249,7 @@ int main(void)//(int argc, char *argv[])
 	return 0;
 }
 
-//--------------------------------------------------------------------------------------
+//=====================================================================================
 // Function call determines if location is inside edge boundaries of map.
 // When a car is out of bounds, get_bounds() returns 0 and the car should be removed.
 int get_bounds( int y, int x )
@@ -285,18 +297,19 @@ void init_cars(int max_cars, car* cars)
 		printf("Error - init_cars(): arg 'max_cars' must be a positive integer\n");
 	}
 
-	car car_default;
+	car cart;
 
-	car_default.id = -1;
-	car_default.v_old = car_default.v_new = V_MAX;
-	car_default.x_old = car_default.x_new = 0;
-	car_default.y_old = car_default.y_new = 0;
-	car_default.direction = EMPTY;
-	car_default.stop_time = 0;
+	cart.id = -1; // inactive cars
+	cart.v_old = cart.v_new = V_MAX;
+	cart.x_old = cart.x_new = 0;
+	cart.y_old = cart.y_new = 0;
+	cart.direction = EMPTY;
+	cart.stop_time = 0;
+	cart.spawn_time = 0;
 
 	for(int i=0; i<max_cars; i++)
 	{
-		cars[i]=car_default;
+		cars[i]=cart;
 	}
 
 }
@@ -306,7 +319,7 @@ void init_cars(int max_cars, car* cars)
 // a new car is "spawned" at specific location moving in a specific direction determined
 // by the spawn-point. The timer is reset to a randomly generated duration.
 
-int update_spawners(int max_cars,spawner* spawners,car* cars,cell** grid)
+int update_spawners( int max_cars, int sim_time, spawner* spawners, car* cars, cell** grid)
 {
 	// check invalid inputs
 	if( grid == NULL )
@@ -351,6 +364,7 @@ int update_spawners(int max_cars,spawner* spawners,car* cars,cell** grid)
 					cars[i].y_old = cars[i].y_new = y;
 					cars[i].direction = spawners[j].direction; // spawned in direction of spawn-point
 					cars[i].stop_time = 0;
+					cars[i].spawn_time = sim_time;
 					grid[y][x].car_id = i; // map is updated with car's location
 					break; // exit for-loop
 				}
@@ -363,46 +377,7 @@ int update_spawners(int max_cars,spawner* spawners,car* cars,cell** grid)
 	return 0; // no errors found
 }
 
-/*** LINKED-LIST VERSION OF UPDATE_SPAWNERS()
-void spawn( struct spawner *ptr )
-{
-	// error check
-	if (ptr == NULL) {
-		printf("Error spawn() - list of spawners is empty\n");
-		return;
-	}
 
-	// declarations
-	struct car cars[MAX_CARS]; // external array from main()
-
-	for( ; ptr!=NULL; ptr = ptr->next )
-	{
-		ptr->timer --; // decrement spawn timer
-		int x = ptr->x ; // stores x-position of spawn point
-		int y = ptr->y ; // stores y-position of spawn point
-
-		// checks if timer is zero AND if spawn-point is clear of cars
-		if( (ptr->timer <= 0) && (cell[y][x].car == 0) )
-		{
-			for(int i=0; i<MAX_CARS; i++) // search through index of car-array
-			{
-				if(cars[i].active == 0) // if index is inactive
-				{
-					cars[i].active = 1; // current car-array index is activated
-					cars[i].speed = V_MAX; // initial speed set to speed limit
-					cars[i].x = x; // spawned at location of spawn-point
-					cars[i].y = y;
-					cars[i].direction = ptr->direction; // spawned in direction of spawn-point
-					cell[y][x].car = i; // map is updated with car's location
-					break; // exit for-loop
-				}
-			}
-			// Resets timer. Currently set to a random number from 1-10.
-			ptr->timer = get_timer(ptr->direction) ;
-		}
-	}
-}
-***/
 
 //--------------------------------------------------------------------------------------
 // Initializes an array of spawners and returns the allocated array.
@@ -477,84 +452,17 @@ spawner* init_spawners(cell** grid)
 		}
 	}
 
+	if( i != NUM_SPAWNERS )
+	{
+		printf("Error - init_spawners(): 'I' map elements != NUM_SPAWNERS\n");
+	}
+
 	//-------------------------------------------
 	// return head of linked-list of spawners
 	return spawners;
 }
 
-/*** LINKED-LIST VERSION OF INIT_SPAWNERS()
-spawner* init_spawn(void)
-{
-	int x,y;
-	struct spawner *ptr=NULL,*head=NULL;
 
-	// scan left edge of map
-	x=0;
-	for(y=0; y<HEIGHT; y++)
-	{
-		if(cell[y][x].element == 'I')
-		{
-			ptr = (struct spawner*) malloc( sizeof(struct spawner));
-			ptr->x = W_EDGE ;
-			ptr->y = y;
-			ptr->direction = 'E';
-			ptr->timer = get_timer('E');
-			ptr->next = head;
-			head = ptr;
-		}
-	}
-
-	// scan right edge of map
-	x=WIDTH-1;
-	for(y=0; y<HEIGHT; y++)
-	{
-		if(cell[y][x].element == 'I')
-		{
-			ptr = (struct spawner*) malloc( sizeof(struct spawner));
-			ptr->x = E_EDGE ;
-			ptr->y = y;
-			ptr->direction = 'W';
-			ptr->timer = get_timer('W');
-			ptr->next = head;
-			head = ptr;
-		}
-	}
-
-	// scan bottom edge of map
-	y=0;
-	for(x=0; x<WIDTH; x++)
-	{
-		if(cell[y][x].element == 'I')
-		{
-			ptr = (struct spawner*) malloc( sizeof(struct spawner));
-			ptr->x = x ;
-			ptr->y = S_EDGE;
-			ptr->direction = 'N';
-			ptr->timer = get_timer('N');
-			ptr->next = head;
-			head = ptr;
-		}
-	}
-
-	// scan top edge of map
-	y=HEIGHT-1;
-	for(x=0; x<WIDTH; x++)
-	{
-		if(cell[y][x].element == 'I')
-		{
-			ptr = malloc( sizeof(struct spawner));
-			ptr->x = x ;
-			ptr->y = N_EDGE;
-			ptr->direction = 'S';
-			ptr->timer = get_timer('S');
-			ptr->next = head;
-			head = ptr;
-		}
-	}
-	// return head of linked-list of spawners
-	return head;
-}
-***/
 
 //--------------------------------------------------------------------------------------
 // updates spawn timer based on direction of spawner
@@ -647,6 +555,28 @@ void fprint_vel(int n1, int n2,int time, car* cars, cell **a,FILE* f)
 //---------------------------------------------------------------------------------------------------------
 void fprint_num_cars( int num_cars, int max_cars, int sim_time,FILE* f)
 {
+	// check for valid inputs
+	if (num_cars < 0)
+	{
+		printf("Error - fprint_num_cars(): arg 'num_cars' cannot be negative\n");
+		return;
+	}
+	if ( max_cars < 1)
+	{
+		printf("Error - fprint_num_cars(): arg 'max_cars' must be positive\n");
+		return;
+	}
+	if ( sim_time < 0)
+	{
+		printf("Error - fprint_num_cars(): arg 'sim_time' cannot be negative\n");
+		return;
+	}
+	if ( f == NULL )
+	{
+		printf("Error - fprint_num_cars(): arg FILE is NULL\n");
+		return;
+	}
+
 	//float density = (float)num_cars / (float)max_cars;
 	fprintf(f,"%d	%d\n",sim_time,num_cars); // can be changed back to density
 }

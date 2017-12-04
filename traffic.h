@@ -13,16 +13,17 @@
 #ifndef TRAFFIC_H_
 #define TRAFFIC_H_
 //--------------------------------------------------
-#define SIM_TIME 200 //
+#define SIM_TIME 1000 // duration of simulation
+#define TIME_STABLE 200 // (default 200) set when to start recording data for 'fraction of time stopped' and 'avg map-time per car'.
 //--------------------------------------------------
 #define V_MAX 5 // maximum speed
-#define PROB_SLOW 0.4// probability car speeds decrease randomly
-#define DENSITY 0.6// initial density of cars on map
+#define PROB_SLOW 0.2 // probability car speeds decrease randomly
+#define DENSITY 0.2 // initial density of cars on map
 //--------------------------------------------------
-#define S_SPAWN_MEAN 10//(10*SIM_TIME)
-#define N_SPAWN_MEAN 10//(10*SIM_TIME)
-#define E_SPAWN_MEAN 10 //(10*SIM_TIME)
-#define W_SPAWN_MEAN 10//(10*SIM_TIME)
+#define S_SPAWN_MEAN 5//(10*SIM_TIME)
+#define N_SPAWN_MEAN 5//(10*SIM_TIME)
+#define E_SPAWN_MEAN 5 //(10*SIM_TIME)
+#define W_SPAWN_MEAN 5//(10*SIM_TIME)
 //---------------------------------------------------
 #define LENGTH 30 //length of a road segment
 #define NUM_LIGHTS_HOR 1 //number of horizontal blocks
@@ -71,7 +72,8 @@ typedef struct car {
 	int x_new;  //new x position
 	int y_new;  //new y position
 	int v_new;  //new velocity
-	int stop_time; //time the car was initialized
+	int stop_time; //time the car was stopped
+	int spawn_time;
 } car;
 
 // spawner structure for cars entering the map from the edges
@@ -93,10 +95,10 @@ typedef struct trafficLight{
 	int id;
 	int x;
 	int y;
-	int timer; //(SCOTT)
-	int time_red; //(SCOTT)
-	int time_green; //(SCOTT)
-	int time_yellow; //(SCOTT)
+	int timer;
+	int time_red;
+	int time_green;
+	int time_yellow;
 	int northSouthLight; //the color of the North and South facing lights
 	//eastWestLight = -1*northSouthLight
 } trafficLight;
