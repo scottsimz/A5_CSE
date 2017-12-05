@@ -1,0 +1,16 @@
+Assignment 5- Traffic simulation at a signalized four way intersection
+Sandesh Adhikary, Felice Chan, Scott Sims
+
+List of files:
+env_map.c 
+Car_Kinematics.c
+simulate.c
+traffic.h
+
+No input arguments are required.
+
+To compile:
+gcc -g env_map.c Car_Kinematics.c simulate.c --std=c99 -lm -o prog
+
+
+The simulation time (variable name DURATION) can be adjusted in the header file: traffic.h 
