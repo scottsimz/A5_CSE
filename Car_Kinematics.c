@@ -1,3 +1,5 @@
+//By Felice Chan
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -151,7 +153,6 @@ int main(){
 		printf("%d,",activeCarList[i].id);
 	}
 	printf("\n");
-
 	//loop over active car list from counter
 	for(int i = 0; i < n_cars; i++){
 		if(activeCarList[i].id !=-1){
@@ -257,6 +258,11 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 //UPDATE VELOCITIES
 int update_velocity(struct car *c, cell** grid, int empty){
 
+	if(empty < 0 || c == NULL || grid == NULL ) {
+			printf("Wrong Input");
+			return 0;
+		}
+
 	//Generate randum number
 	double rn = (double)rand() / (double)RAND_MAX;
 
@@ -287,6 +293,13 @@ int update_velocity(struct car *c, cell** grid, int empty){
 
 car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct car *activeCarList){
 
+
+	if(empty < 0 || c == NULL || grid == NULL || ncars < 0 || i < 0 || activeCarList == NULL) {
+			printf("Wrong Input");
+			return 0;
+		}
+
+
 		char direction = activeCarList[i].direction;
 
 //		if(northSouthLight == RED || northSouthLight == YELLOW){
@@ -308,7 +321,7 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			int x_current = c->x_new;
 			c->x_old = x_current;
 			c->x_new = x_current + v;
-			
+
 			if(c->x_new > (GRID_WIDTH / 2) &&  c->x_old <(GRID_WIDTH / 2)){
 				flow++;
 			}
@@ -341,7 +354,7 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 
 			//Y STAYS THE SAME IN WEST-BOUND TRAFFIC
 			c->y_new = c->y_old;
-			
+
 			if(c->x_new < (GRID_WIDTH / 2) &&  c->x_old >(GRID_WIDTH / 2)){
 				flow++;
 			}
@@ -367,7 +380,7 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			int y_current = c->y_new;
 			c->y_old = y_current;
 			c->y_new = y_current - v;
-			
+
 			if(c->y_new < (GRID_HEIGHT / 2) &&  c->y_old >(GRID_HEIGHT / 2)){
 				flow++;
 			}
@@ -396,7 +409,7 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 			int y_current = c->y_new;
 			c->y_old = y_current;
 			c->y_new = y_current + v;
-			
+
 			if(c->y_new > (GRID_HEIGHT / 2) && c->y_old <(GRID_HEIGHT / 2)){
 				flow++;
 			}
@@ -423,6 +436,12 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 
 //GENERATE GHOST CAR FOR RED LIGHTS
 void ghost(cell ** grid, int midRow, int midCol, trafficLight *color){
+
+	if(color ==  NULL || grid == NULL || midRow < 0 || midCol < 0 ) {
+			printf("Wrong Input");
+			return;
+		}
+
 
 	int light = color->northSouthLight;
 
