@@ -244,15 +244,6 @@ int emptycellcount(cell **grid, int gridWidth, int gridHeight, int i, int j, cha
 	return emptyspaces;
 }
 
-//int dist_intersect(cell **grid, int gridWidth, int gridHeight, int i, int j, char direction){
-//
-//	int dist_j = 0;
-//
-//	if(direction == EAST){
-//
-//	}
-//
-//}
 
 
 //UPDATE VELOCITIES
@@ -302,13 +293,7 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 
 		char direction = activeCarList[i].direction;
 
-//		if(northSouthLight == RED || northSouthLight == YELLOW){
-//			ghost(grid, midRow, midCol, direction, numcars);
-//		}
-//
-//		else(){
-//
-//		}
+
 
 		//if this is an east road and there is a car in a cell
 		if(direction == EAST){// && (grid[x][y].car_id != -1)){
