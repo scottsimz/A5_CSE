@@ -12,5 +12,5 @@ No input arguments are required.
 To compile:
 gcc -g env_map.c Car_Kinematics.c simulate.c --std=c99 -lm -o prog
 
-
-The simulation time (variable name DURATION) can be adjusted in the header file: traffic.h 
+The simulation time (variable name DURATION) and all other tunable parameters
+can be adjusted in the header file: traffic.h. 
