@@ -10,6 +10,10 @@ Sandesh:
 
 
 Scott:
+1. Created traffic.h file
+2. Wrote code for simulation loop and car spawner functions.
+3. Other miscellaneous changes to environment map code
+4. Analysis: number of cars vs time and number of cars vs. avg spawn rate. 
 
 
 
@@ -17,8 +21,8 @@ Felice:
 1. Was responsible for writing functions that govern the movement of vehicles on the map 
 (calculates new velocity, position, acceleration and deceleration, and stopping at red lights). 
 2. Wrote ghost car function to generate ghost cars at lights. 
-3. Functions are saved in the car kinematics file, 
-4. Report and Analysis: Verification of car movements
-5. Fundamental traffic flow diagram analysis. 
+3. Functions are saved in the car kinematics file.
+4. Analysis: Verification of car movements analysis and diagrams
+5. Analysis: Fundamental traffic flow diagram analysis - flow vs density
 
 While the above listed work is what each person was responsible for, we also spent a significant amount of time working with each other to debug and improve each other's codes. 
