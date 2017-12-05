@@ -295,7 +295,7 @@ car* update_car(struct car *c, cell** grid, int empty, int ncars, int i, struct 
 
 
 	if(empty < 0 || c == NULL || grid == NULL || ncars < 0 || i < 0 || activeCarList == NULL) {
-			printf("Wrong Input");
+			printf("Error - update_car: Wrong Input");
 			return 0;
 		}
 

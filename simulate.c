@@ -41,9 +41,9 @@ int main(void)//(int argc, char *argv[])
 	int sim_time = strtol(argv[1],NULL,10);
 	**************************************************/
 	// check invalid argument range
-	if (SIM_TIME < 1 )
+	if (DURATION < 1 )
 	{
-		printf("Error main() - simulation time must be a positive integer, not %d\n",SIM_TIME);
+		printf("Error main() - simulation time must be a positive integer, not %d\n",DURATION);
 		return 1;
 	}
 
@@ -108,16 +108,15 @@ int main(void)//(int argc, char *argv[])
 	int x,y,i,num_cars,x_pos,y_pos,num_empty;
 	char direction;
 
-	while(timer < SIM_TIME)
+	while(timer < DURATION)
 	{
 		timer ++;
 
 		// (1) UPDATE LIGHTS
 		error_check = update_lights(lights);
 			if( error_check == 1 ) return 1;
-			printf("time = %d\n",timer);
+			//printf("time = %d\n",timer);
 			fprintf(output_vel,"NS_LIGHT(%d)\n",lights[0].northSouthLight);
-			//printf("(1) update lights\n");
 
 		// (2) UPDATE GHOST
 		ghost(grid, row_light, col_light, &lights[0]);
@@ -141,7 +140,6 @@ int main(void)//(int argc, char *argv[])
 
 			}//end if
 		}
-			//printf("(3) update cars\n");
 
 		//-----------------------------------------------------------
 		// (4) UPDATE MAP (and copies new cars into old cars for next loop)
@@ -159,14 +157,13 @@ int main(void)//(int argc, char *argv[])
 				{
 					grid[y][x].car_id = i ; // add index of car to new map location
 
-					if(cars[i].v_old == 0 ){ cars[i].stop_time += 1; }// (SANDESH) if the car did not change positions, add to its stop time
-
 					cars[i].x_old = cars[i].x_new;
 					cars[i].y_old = cars[i].y_new;
 					cars[i].v_old = cars[i].v_new;
 
 					if(timer>TIME_STABLE) // allows for stability before recording data
 					{
+						if(cars[i].v_old == 0 ){ cars[i].stop_time += 1; }// (SANDESH) if the car did not change positions, add to its stop time
 						num_cars++; // count number of active cars
 						total_time_cars++; // count total time of active cars on map
 					}
@@ -183,13 +180,11 @@ int main(void)//(int argc, char *argv[])
 				}
 			}
 		}
-			//printf("(4) update map\n");
 
 		//-----------------------------------------------------------
 		// (5) UPDATE SPAWNERS
 		error_check = update_spawners( max_cars, timer, spawners, cars, grid);
 			if( error_check == 1 ) return 1;
-			//printf("(5) update spawners\n");
 
 		// (6) PRINT
 		fprint_num_cars(num_cars,max_cars,timer,output_cars);
@@ -208,11 +203,12 @@ int main(void)//(int argc, char *argv[])
 
 	}
 
+	printf("timer = %d",timer);
 	printf("SIMULATION COMPLETE!\n");
 	fprintf(output_cars,"SIMULATION COMPLETE!\n");
 
 	//--------------------------------------------------------------
-	//COMPUTE FRACTION TIME 	STOPPED (SANDESH)
+	//COMPUTE FRACTION TIME STOPPED (SANDESH)
 	int total_time_stopped = 0;
 	for (int i = 0; i < max_cars; i++){
 		// if(cars[i].direction == NORTH ||
@@ -488,7 +484,7 @@ int get_timer( char dir )
 	else
 	{
 		printf("Error get_timer() - Invalid direction '%c'\n",dir);
-		return SIM_TIME;
+		return DURATION;
 	}
 }
 

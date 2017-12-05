@@ -13,19 +13,19 @@
 #ifndef TRAFFIC_H_
 #define TRAFFIC_H_
 //--------------------------------------------------
-#define SIM_TIME 1000 // duration of simulation
+#define DURATION 1000 // duration of simulation
 #define TIME_STABLE 200 // (default 200) set when to start recording data for 'fraction of time stopped' and 'avg map-time per car'.
 //--------------------------------------------------
 #define V_MAX 5 // maximum speed
 #define PROB_SLOW 0.2 // probability car speeds decrease randomly
 #define DENSITY 0.2 // initial density of cars on map
 //--------------------------------------------------
-#define S_SPAWN_MEAN 5//(10*SIM_TIME)
-#define N_SPAWN_MEAN 5//(10*SIM_TIME)
-#define E_SPAWN_MEAN 5 //(10*SIM_TIME)
-#define W_SPAWN_MEAN 5//(10*SIM_TIME)
+#define S_SPAWN_MEAN 5//(10*DURATION)
+#define N_SPAWN_MEAN 5//(10*DURATION)
+#define E_SPAWN_MEAN 5 //(10*DURATION)
+#define W_SPAWN_MEAN 5//(10*DURATION)
 //---------------------------------------------------
-#define LENGTH 30 //length of a road segment
+#define LENGTH 60 //length of a road segment
 #define NUM_LIGHTS_HOR 1 //number of horizontal blocks
 #define NUM_LIGHTS_VERT 1 //number of vertical blocks
 //---------------------------------------------------
